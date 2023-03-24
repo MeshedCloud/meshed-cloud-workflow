@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>cn.meshed.cloud.workflow</groupId>
+        <artifactId>meshed-cloud-workflow-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>meshed-cloud-workflow-domain</artifactId>
+    <packaging>jar</packaging>
+    <name>meshed-cloud-workflow-domain</name>
+
+    <dependencies>
+        <!-- COLA components -->
+        <dependency>
+            <groupId>com.alibaba.cola</groupId>
+            <artifactId>cola-component-domain-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cola</groupId>
+            <artifactId>cola-component-dto</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cola</groupId>
+            <artifactId>cola-component-exception</artifactId>
+        </dependency>
+        <!-- COLA components End-->
+        <dependency>
+            <groupId>cn.meshed.cloud</groupId>
+            <artifactId>meshed-cloud-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.meshed.cloud</groupId>
+            <artifactId>meshed-cloud-cqrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.meshed.cloud.workflow</groupId>
+            <artifactId>meshed-cloud-workflow-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.meshed.cloud</groupId>
+            <artifactId>meshed-cloud-context-starter</artifactId>
+        </dependency>
+    </dependencies>
+</project>

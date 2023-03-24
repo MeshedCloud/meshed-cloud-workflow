@@ -1,0 +1,40 @@
+# MQ 非默认设施
+# 使用步骤
+# 1. 添加依赖
+#<dependency>
+#  <groupId>cn.meshed.cloud</groupId>
+#  <artifactId>meshed-cloud-stream-starter</artifactId>
+#  <version>${meshde.cloud.stream.version}</version>
+#</dependency>
+# 版本可在研发平台中获取最新
+# 2.添加环境设施配置
+# 在bootstrap.yml的nacos配置中添加shared-configs配置项
+
+#shared-configs[index]:
+#  data-id: mq.yaml # 配置文件名-Data Id
+#  group: DEFAULT_GROUP   # 默认为DEFAULT_GROUP
+#  refresh: true   # 是否动态刷新，默认为false
+
+
+# 3.绑定和监听信息配置（示例）
+#spring:
+#  cloud:
+#    stream:
+#      bindings:
+#        #自定义发布事件名称
+#        publishingEventName:
+#          #topic 发布的topic
+#          destination: topic-name
+#        #格式：监听方法名称-in-0
+#        # 监听方法名称需要与function definition 中bean名称一致
+#        consumerHandle1-in-0:
+#          #topic 消费的topic
+#          destination: topic-name
+#          #消费分组，同分组仅单机消费，不同分组会消费同一个topic事件
+#          group: group1
+#        consumerHandle2-in-0:
+#          destination: topic-name
+#          #消费分组，同分组仅单机消费，不同分组会消费同一个topic事件
+#          group: group2
+#      function:
+#        definition: consumerHandle1;consumerHandle2

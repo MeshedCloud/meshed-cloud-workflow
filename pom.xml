@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>cn.meshed.cloud</groupId>
+        <artifactId>meshed-cloud-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <groupId>cn.meshed.cloud.workflow</groupId>
+    <artifactId>meshed-cloud-workflow-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>meshed-cloud-workflow</name>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <spring-boot.version>2.7.2</spring-boot.version>
+        <mybatis-starter.version>2.2.2</mybatis-starter.version>
+        <meshed.cola.version>1.0.0-SNAPSHOT</meshed.cola.version>
+        <meshed-cloud-start-starter.version>1.0.0-SNAPSHOT</meshed-cloud-start-starter.version>
+        <meshed-cloud-doc-starter.version>1.0.0-SNAPSHOT</meshed-cloud-doc-starter.version>
+        <meshed.mysql.version>1.0.0-SNAPSHOT</meshed.mysql.version>
+        <meshed.common.version>1.0.0-SNAPSHOT</meshed.common.version>
+        <meshed.cqrs.version>1.0.0-SNAPSHOT</meshed.cqrs.version>
+        <meshed.dubbo.version>1.0.0-SNAPSHOT</meshed.dubbo.version>
+        <meshed.context.version>1.0.0-SNAPSHOT</meshed.context.version>
+    </properties>
+
+    <modules>
+        <module>meshed-cloud-workflow-adapter</module>
+        <module>meshed-cloud-workflow-app</module>
+        <module>meshed-cloud-workflow-domain</module>
+        <module>meshed-cloud-workflow-infrastructure</module>
+        <module>start</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <!--Project modules-->
+            <dependency>
+                <groupId>cn.meshed.cloud.workflow</groupId>
+                <artifactId>meshed-cloud-workflow-adapter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.meshed.cloud.workflow</groupId>
+                <artifactId>meshed-cloud-workflow-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.meshed.cloud.workflow</groupId>
+                <artifactId>meshed-cloud-workflow-app</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.meshed.cloud.workflow</groupId>
+                <artifactId>meshed-cloud-workflow-domain</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.meshed.cloud.workflow</groupId>
+                <artifactId>meshed-cloud-workflow-infrastructure</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--Project modules End-->
+
+            <dependency>
+                <groupId>cn.meshed.cloud</groupId>
+                <artifactId>meshed-cloud-start-starter</artifactId>
+                <version>${meshed-cloud-start-starter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.meshed.cloud</groupId>
+                <artifactId>meshed-cloud-doc-starter</artifactId>
+                <version>${meshed-cloud-doc-starter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.meshed.cloud</groupId>
+                <artifactId>meshed-cloud-common</artifactId>
+                <version>${meshed.common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.meshed.cloud</groupId>
+                <artifactId>meshed-cloud-data-mysql-starter</artifactId>
+                <version>${meshed.mysql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.meshed.cloud</groupId>
+                <artifactId>meshed-cloud-cqrs</artifactId>
+                <version>${meshed.cqrs.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.meshed.cloud</groupId>
+                <artifactId>meshed-cloud-dubbo-starter</artifactId>
+                <version>${meshed.dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.meshed.cloud</groupId>
+                <artifactId>meshed-cloud-context-starter</artifactId>
+                <version>${meshed.context.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.10.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.2.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+                <plugin>
+                     <artifactId>maven-deploy-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

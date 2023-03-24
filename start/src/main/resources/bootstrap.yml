@@ -1,0 +1,64 @@
+server:
+  port: ${PORT}
+  servlet:
+    context-path: /rd
+spring:
+  profiles:
+    active: ${ACTIVE}
+    include:
+      mq
+  application:
+    name: rd
+  cloud:
+    nacos:
+      #服务发现
+      discovery:
+        enabled: true
+        server-addr: ${NACOS_HOST}:${NACOS_PORT}
+        namespace: meshed-cloud
+        metadata:
+          management:
+            context-path: ${server.servlet.context-path}/actuator
+      #服务配置
+      config:
+        enabled: true
+        # 配置中心地址
+        server-addr: ${NACOS_HOST}:${NACOS_PORT}
+        # 配置文件格式
+        file-extension: yaml
+        # 服务命名空间
+        namespace: meshed-cloud
+        #启动刷新
+        refresh-enabled: true
+        # 支持多个共享 Data Id 的配置，优先级小于extension-configs,自定义 Data Id 配置 属性是个集合
+        # 内部由 Config POJO 组成。Config 有 3 个属性，分别是 dataId, group 以及 refresh
+        shared-configs[0]:
+          data-id: common.yaml # 配置文件名-Data Id
+          group: DEFAULT_GROUP   # 默认为DEFAULT_GROUP
+          refresh: true   # 是否动态刷新，默认为false
+        shared-configs[1]:
+          data-id: mybatis-common.yaml # 配置文件名-Data Id
+          group: DEFAULT_GROUP   # 默认为DEFAULT_GROUP
+          refresh: true   # 是否动态刷新，默认为false
+        # 扩展配置
+  #        extension-configs[0]:
+  #          data-id: file.yaml
+  #          group: DEFAULT_GROUP     # 默认为DEFAULT_GROUP
+  #          refresh: true            # 是否动态刷新，默认为false
+
+dubbo:
+  protocol:
+    name: dubbo
+    port: -1
+    check: false
+  registry:
+    address: nacos://${spring.cloud.nacos.config.server-addr}
+  application:
+    name: workflow-dubbo
+    register-consumer: true
+  consumer:
+    check: false
+    timeout: 5000
+    retries: 2
+  reference:
+    check: false
