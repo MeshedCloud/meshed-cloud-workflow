@@ -25,6 +25,7 @@
         <meshed-cloud-start-starter.version>1.0.0-SNAPSHOT</meshed-cloud-start-starter.version>
         <meshed-cloud-doc-starter.version>1.0.0-SNAPSHOT</meshed-cloud-doc-starter.version>
         <meshed.mysql.version>1.0.0-SNAPSHOT</meshed.mysql.version>
+        <meshed.redis.version>1.0.0-SNAPSHOT</meshed.redis.version>
         <meshed.common.version>1.0.0-SNAPSHOT</meshed.common.version>
         <meshed.cqrs.version>1.0.0-SNAPSHOT</meshed.cqrs.version>
         <meshed.dubbo.version>1.0.0-SNAPSHOT</meshed.dubbo.version>
@@ -102,6 +103,11 @@
                 <groupId>cn.meshed.cloud</groupId>
                 <artifactId>meshed-cloud-data-mysql-starter</artifactId>
                 <version>${meshed.mysql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.meshed.cloud</groupId>
+                <artifactId>meshed-cloud-data-redis-starter</artifactId>
+                <version>${meshed.redis.version}</version>
             </dependency>
             <dependency>
                 <groupId>cn.meshed.cloud</groupId>
