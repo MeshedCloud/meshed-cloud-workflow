@@ -21,7 +21,11 @@
         <dependency>
             <groupId>cn.meshed.cloud</groupId>
             <artifactId>meshed-cloud-data-mysql-starter</artifactId>
-            <version>${meshed.mysql.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.meshed.cloud</groupId>
+            <artifactId>meshed-cloud-data-redis-starter</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <!-- flowable 工作流引擎依赖 -->
         <dependency>
