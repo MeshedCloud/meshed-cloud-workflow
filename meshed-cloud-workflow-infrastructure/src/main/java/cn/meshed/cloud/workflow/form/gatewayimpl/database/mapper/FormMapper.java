@@ -1,7 +1,11 @@
 package cn.meshed.cloud.workflow.form.gatewayimpl.database.mapper;
 
+import cn.meshed.cloud.workflow.form.enums.FormStatusEnum;
 import cn.meshed.cloud.workflow.form.gatewayimpl.database.dataobject.FormDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +17,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface FormMapper extends BaseMapper<FormDO> {
 
+    /**
+     * 查询表单最新版本选项
+     *
+     * @return
+     */
+    List<FormDO> select();
 }

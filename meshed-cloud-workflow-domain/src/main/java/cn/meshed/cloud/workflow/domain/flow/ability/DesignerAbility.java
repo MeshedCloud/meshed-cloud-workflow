@@ -1,7 +1,6 @@
 package cn.meshed.cloud.workflow.domain.flow.ability;
 
 import cn.meshed.cloud.core.ISave;
-import cn.meshed.cloud.workflow.domain.flow.Designer;
 import cn.meshed.cloud.workflow.flow.command.DesignerCmd;
 import com.alibaba.cola.dto.Response;
 import com.alibaba.cola.dto.SingleResponse;

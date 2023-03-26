@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CacheDesignerGateway implements DesignerGateway {
 
-    public StringRedisTemplate stringRedisTemplate;
+    public final StringRedisTemplate stringRedisTemplate;
 
     /**
      * 获取设计数据
