@@ -1,5 +1,6 @@
 package cn.meshed.cloud.workflow.flow.web;
 
+import cn.meshed.cloud.workflow.domain.flow.ability.DesignerAbility;
 import cn.meshed.cloud.workflow.flow.DesignerAdapter;
 import cn.meshed.cloud.workflow.flow.command.DesignerCmd;
 import com.alibaba.cola.dto.Response;
@@ -18,6 +19,9 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 @RestController
 public class DesignerWebAdapter implements DesignerAdapter {
+
+    private final DesignerAbility designerAbility;
+
     /**
      * 流程设计数据
      *
@@ -26,7 +30,7 @@ public class DesignerWebAdapter implements DesignerAdapter {
      */
     @Override
     public SingleResponse<String> getDesigner(String flowId) {
-        return null;
+        return designerAbility.getDesigner(flowId);
     }
 
     /**
@@ -37,6 +41,6 @@ public class DesignerWebAdapter implements DesignerAdapter {
      */
     @Override
     public Response save(@Valid DesignerCmd designerCmd) {
-        return null;
+        return designerAbility.save(designerCmd);
     }
 }

@@ -1,15 +1,12 @@
-package cn.meshed.cloud.workflow.form.gatewayimpl.database.dataobject;
+package cn.meshed.cloud.workflow.domain.form;
 
-import cn.meshed.cloud.entity.BaseEntity;
+import cn.meshed.cloud.utils.AssertUtils;
 import cn.meshed.cloud.workflow.form.enums.FormStatusEnum;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import java.time.LocalDateTime;
-import java.io.Serializable;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * <p>
@@ -21,27 +18,24 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@TableName("m_form")
-public class FormDO extends BaseEntity {
+public class Form {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * ID
      */
-    @TableId(type = IdType.ASSIGN_UUID)
     private String id;
 
     /**
      * 表单key
      */
-    @TableField("`key`")
+    @Setter(AccessLevel.NONE)
     private String key;
 
     /**
      * 表单名称
      */
-    @TableField("`name`")
     private String name;
 
     /**
@@ -52,7 +46,6 @@ public class FormDO extends BaseEntity {
     /**
      * 表单json数据
      */
-    @TableField("`schema`")
     private String schema;
 
     /**
@@ -63,8 +56,14 @@ public class FormDO extends BaseEntity {
     /**
      * 表单状态
      */
-    @TableField("`status`")
     private FormStatusEnum status;
 
+    public Form() {
+        this.version = 1;
+    }
 
+    public void setKey(String key) {
+        AssertUtils.isTrue(StringUtils.isNotBlank(key),"key不能为空");
+        this.key = key.toUpperCase();
+    }
 }

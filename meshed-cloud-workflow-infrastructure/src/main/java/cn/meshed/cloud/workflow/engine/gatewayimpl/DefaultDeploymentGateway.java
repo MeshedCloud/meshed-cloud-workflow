@@ -29,16 +29,22 @@ public class DefaultDeploymentGateway implements DeploymentGateway {
      * 部署流程
      *
      * @param createDeployment 部署信息
-     * @return 部署ID
+     * @return 定义ID
      */
     @Override
     public String deployment(CreateDeployment createDeployment) {
         //校验
         AssertUtils.isTrue(StringUtils.isNotBlank(createDeployment.getName()), "部署名称不能为空");
-        AssertUtils.isTrue(createDeployment.getXmlIn() != null, "部署内容称不能为空");
+
         //部署信息
         DeploymentBuilder builder = repositoryService.createDeployment();
-        builder.addInputStream(createDeployment.getBpmnName(), createDeployment.getXmlIn());
+        if (createDeployment.hasBpmnModel()){
+            builder.addBpmnModel(createDeployment.getBpmnName(), createDeployment.getBpmnModel());
+        } else {
+            AssertUtils.isTrue(createDeployment.getXmlIn() != null, "部署内容称不能为空");
+            builder.addInputStream(createDeployment.getBpmnName(), createDeployment.getXmlIn());
+        }
+
         //svg不为空
         if (createDeployment.getSvgIn() != null) {
             builder.addInputStream(createDeployment.getSvgName(), createDeployment.getSvgIn());
@@ -50,12 +56,13 @@ public class DefaultDeploymentGateway implements DeploymentGateway {
             builder.key(createDeployment.getKey());
         }
         Deployment deploy = builder.deploy();
+        ProcessDefinition definition = repositoryService.createProcessDefinitionQuery().deploymentId(deploy.getId()).singleResult();
         if (StringUtils.isNotBlank(createDeployment.getCategory())) {
-            ProcessDefinition definition = repositoryService.createProcessDefinitionQuery().deploymentId(deploy.getId()).singleResult();
+
             repositoryService.setProcessDefinitionCategory(definition.getId(), createDeployment.getCategory());
         }
 
-        return deploy.getId();
+        return definition.getId();
     }
 
     /**

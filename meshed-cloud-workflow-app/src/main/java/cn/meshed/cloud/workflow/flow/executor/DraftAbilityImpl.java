@@ -8,11 +8,12 @@ import cn.meshed.cloud.workflow.flow.executor.query.DraftPageQryExe;
 import cn.meshed.cloud.workflow.flow.query.DraftPageQry;
 import com.alibaba.cola.dto.PageResponse;
 import com.alibaba.cola.dto.Response;
+import com.alibaba.cola.dto.SingleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
- * <h1></h1>
+ * <h1>草稿能力实现</h1>
  *
  * @author Vincent Vic
  * @version 1.0
@@ -44,5 +45,27 @@ public class DraftAbilityImpl implements DraftAbility {
     @Override
     public PageResponse<DraftDTO> searchList(DraftPageQry pageQry) {
         return draftPageQryExe.execute(pageQry);
+    }
+
+    /**
+     * 发布流程
+     *
+     * @param draftId 草稿ID
+     * @return {@link Response}
+     */
+    @Override
+    public Response publish(String draftId) {
+        return null;
+    }
+
+    /**
+     * 查询草稿信息
+     *
+     * @param draftId 草稿ID
+     * @return {@link SingleResponse <DraftDTO>}
+     */
+    @Override
+    public SingleResponse<DraftDTO> query(String draftId) {
+        return null;
     }
 }

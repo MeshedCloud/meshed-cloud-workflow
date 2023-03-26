@@ -2,4 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.meshed.cloud.workflow.form.gatewayimpl.database.mapper.FormMapper">
 
+    <select id="select" resultType="cn.meshed.cloud.workflow.form.gatewayimpl.database.dataobject.FormDO">
+        SELECT f2.id, f2.`name`, f2.version
+        FROM (SELECT `key`, MAX(version) AS version
+              FROM m_form
+              GROUP BY `key`) f1
+                 LEFT JOIN m_form f2 ON f1.`key` = f2.`key` AND f1.version = f2.version
+        WHERE f2.`status` = 1
+    </select>
 </mapper>

@@ -1,15 +1,12 @@
 package cn.meshed.cloud.workflow.domain.flow;
 
 import cn.meshed.cloud.workflow.flow.enums.FormTypeEnum;
-import com.alibaba.cola.dto.Command;
-import com.alibaba.cola.dto.DTO;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * <h1>草稿保存模型</h1>
@@ -61,5 +58,9 @@ public class Draft implements Serializable {
      */
     private String description;
 
+    /**
+     * 创建日期
+     */
+    private LocalDate createDate;
 
 }
