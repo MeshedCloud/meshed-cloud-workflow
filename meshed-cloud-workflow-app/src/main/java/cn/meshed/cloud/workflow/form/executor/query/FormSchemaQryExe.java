@@ -1,6 +1,8 @@
 package cn.meshed.cloud.workflow.form.executor.query;
 
 import cn.meshed.cloud.cqrs.QueryExecute;
+import cn.meshed.cloud.utils.ResultUtils;
+import cn.meshed.cloud.workflow.domain.form.gateway.FormGateway;
 import cn.meshed.cloud.workflow.form.query.FormSchemaQry;
 import com.alibaba.cola.dto.SingleResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class FormSchemaQryExe implements QueryExecute<FormSchemaQry, SingleResponse<String>> {
+
+    private final FormGateway formGateway;
+
     /**
      * <h1>查询执行器</h1>
      *
@@ -25,6 +30,6 @@ public class FormSchemaQryExe implements QueryExecute<FormSchemaQry, SingleRespo
      */
     @Override
     public SingleResponse<String> execute(FormSchemaQry formSchemaQry) {
-        return null;
+        return ResultUtils.of(formGateway.getSchema(formSchemaQry.getId(), formSchemaQry.getKey()));
     }
 }

@@ -7,8 +7,10 @@ import cn.meshed.cloud.workflow.form.data.FormDTO;
 import cn.meshed.cloud.workflow.form.data.FormOptionDTO;
 import cn.meshed.cloud.workflow.form.executor.command.FormCmdExe;
 import cn.meshed.cloud.workflow.form.executor.command.FormCopyCmdExe;
+import cn.meshed.cloud.workflow.form.executor.command.FormDelExe;
 import cn.meshed.cloud.workflow.form.executor.command.FormDiscardCmdExe;
 import cn.meshed.cloud.workflow.form.executor.command.FormPublishCmdExe;
+import cn.meshed.cloud.workflow.form.executor.command.FormResumeCmdExe;
 import cn.meshed.cloud.workflow.form.executor.command.FormSchemaCmdExe;
 import cn.meshed.cloud.workflow.form.executor.query.FormAvailableKeyQryExe;
 import cn.meshed.cloud.workflow.form.executor.query.FormPageQryExe;
@@ -16,13 +18,12 @@ import cn.meshed.cloud.workflow.form.executor.query.FormSchemaQryExe;
 import cn.meshed.cloud.workflow.form.executor.query.FormSelectQryExe;
 import cn.meshed.cloud.workflow.form.query.FormPageQry;
 import cn.meshed.cloud.workflow.form.query.FormSchemaQry;
+import com.alibaba.cola.dto.MultiResponse;
 import com.alibaba.cola.dto.PageResponse;
 import com.alibaba.cola.dto.Response;
 import com.alibaba.cola.dto.SingleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * <h1>表单能力实现</h1>
@@ -35,9 +36,11 @@ import java.util.List;
 public class FormAbilityImpl implements FormAbility {
 
     private final FormCmdExe formCmdExe;
+    private final FormDelExe formDelExe;
     private final FormSchemaCmdExe formSchemaCmdExe;
     private final FormPublishCmdExe formPublishCmdExe;
     private final FormDiscardCmdExe formDiscardCmdExe;
+    private final FormResumeCmdExe formResumeCmdExe;
     private final FormCopyCmdExe formCopyCmdExe;
     private final FormSchemaQryExe formSchemaQryExe;
     private final FormAvailableKeyQryExe formAvailableKeyQryExe;
@@ -78,6 +81,28 @@ public class FormAbilityImpl implements FormAbility {
     }
 
     /**
+     * 恢复表单
+     *
+     * @param formId 表单ID
+     * @return {@link Response}
+     */
+    @Override
+    public Response resume(String formId) {
+        return formResumeCmdExe.execute(formId);
+    }
+
+    /**
+     * 删除表单
+     *
+     * @param formId 表单ID
+     * @return {@link Response}
+     */
+    @Override
+    public Response delete(String formId) {
+        return formDelExe.execute(formId);
+    }
+
+    /**
      * 拷贝副本
      *
      * @param formId 表单ID
@@ -113,10 +138,10 @@ public class FormAbilityImpl implements FormAbility {
     /**
      * 获取表单选项信息
      *
-     * @return {@link SingleResponse< List < FormDTO >>}
+     * @return {@link MultiResponse< FormDTO >}
      */
     @Override
-    public SingleResponse<List<FormOptionDTO>> select() {
+    public MultiResponse<FormOptionDTO> select() {
         return formSelectQryExe.execute(null);
     }
 

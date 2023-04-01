@@ -1,6 +1,5 @@
 package cn.meshed.cloud.workflow.flow.gatewayimpl;
 
-import cn.meshed.cloud.utils.AssertUtils;
 import cn.meshed.cloud.workflow.domain.flow.Designer;
 import cn.meshed.cloud.workflow.domain.flow.gateway.DesignerGateway;
 import cn.meshed.cloud.workflow.flow.gatewayimpl.database.dataobject.FlowDesignerDO;
@@ -40,13 +39,25 @@ public class DefaultDesignerGateway implements DesignerGateway {
     /**
      * <h1>保存对象</h1>
      *
-     * @param designer
+     * @param designer 设计对象
      * @return {@link Boolean}
      */
     @Override
     public Boolean save(Designer designer) {
         FlowDesignerDO flowDesignerDO = new FlowDesignerDO();
+        flowDesignerDO.setId(designer.getFlowId());
         flowDesignerDO.setGraph(designer.getGraph());
         return flowDesignerMapper.insert(flowDesignerDO) > 0;
+    }
+
+    /**
+     * <h1>删除对象</h1>
+     *
+     * @param flowId 流程ID
+     * @return {@link Boolean}
+     */
+    @Override
+    public Boolean delete(String flowId) {
+        return flowDesignerMapper.deleteById(flowId) > 0;
     }
 }

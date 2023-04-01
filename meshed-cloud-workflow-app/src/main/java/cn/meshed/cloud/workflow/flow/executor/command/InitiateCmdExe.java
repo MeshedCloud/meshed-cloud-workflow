@@ -1,11 +1,11 @@
-package cn.meshed.cloud.workflow.engine.executor.command;
+package cn.meshed.cloud.workflow.flow.executor.command;
 
 import cn.meshed.cloud.cqrs.CommandExecute;
 import cn.meshed.cloud.utils.CopyUtils;
 import cn.meshed.cloud.utils.ResultUtils;
 import cn.meshed.cloud.workflow.domain.engine.InitiateInstance;
 import cn.meshed.cloud.workflow.domain.engine.gateway.InstanceGateway;
-import cn.meshed.cloud.workflow.engine.command.InitiateInstanceCmd;
+import cn.meshed.cloud.workflow.flow.command.InitiateCmd;
 import com.alibaba.cola.dto.SingleResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,19 +20,19 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class InitiateInstanceCmdExe implements CommandExecute<InitiateInstanceCmd, SingleResponse<String>> {
+public class InitiateCmdExe implements CommandExecute<InitiateCmd, SingleResponse<String>> {
 
     private final InstanceGateway instanceGateway;
 
     /**
      * <h1>执行器</h1>
      *
-     * @param initiateInstanceCmd 执行器 {@link InitiateInstanceCmd}
+     * @param initiateCmd 执行器 {@link InitiateCmd}
      * @return {@link SingleResponse<String>}
      */
     @Override
-    public SingleResponse<String> execute(InitiateInstanceCmd initiateInstanceCmd) {
-        InitiateInstance initiateInstance = CopyUtils.copy(initiateInstanceCmd, InitiateInstance.class);
+    public SingleResponse<String> execute(InitiateCmd initiateCmd) {
+        InitiateInstance initiateInstance = CopyUtils.copy(initiateCmd, InitiateInstance.class);
         String instanceId = instanceGateway.initiate(initiateInstance);
         return ResultUtils.of(instanceId);
     }

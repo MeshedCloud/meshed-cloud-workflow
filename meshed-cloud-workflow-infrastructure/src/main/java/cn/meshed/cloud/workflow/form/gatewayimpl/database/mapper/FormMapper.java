@@ -1,9 +1,7 @@
 package cn.meshed.cloud.workflow.form.gatewayimpl.database.mapper;
 
-import cn.meshed.cloud.workflow.form.enums.FormStatusEnum;
 import cn.meshed.cloud.workflow.form.gatewayimpl.database.dataobject.FormDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 

@@ -3,7 +3,7 @@
 <mapper namespace="cn.meshed.cloud.workflow.form.gatewayimpl.database.mapper.FormMapper">
 
     <select id="select" resultType="cn.meshed.cloud.workflow.form.gatewayimpl.database.dataobject.FormDO">
-        SELECT f2.id, f2.`name`, f2.version
+        SELECT f2.id, f2.`name`, f2.version, f2.`key`
         FROM (SELECT `key`, MAX(version) AS version
               FROM m_form
               GROUP BY `key`) f1

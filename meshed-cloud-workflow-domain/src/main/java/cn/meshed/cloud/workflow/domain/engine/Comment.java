@@ -1,5 +1,6 @@
 package cn.meshed.cloud.workflow.domain.engine;
 
+import cn.meshed.cloud.workflow.domain.engine.constant.CommentType;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,47 +18,36 @@ public class Comment implements Serializable {
     /**
      * ID
      */
-    String id;
+    private String id;
 
     /**
      * 附件名称
      */
-    String attachmentName;
+    private String attachmentName;
 
     /**
      * 评论
      */
-    String fullMessage;
-
-    /**
-     * 类型：附件类型/评论/完成
-     */
-    String type;
-
+    private String fullMessage;
     /**
      * 任务ID
      */
-    String taskId;
-
-    /**
-     * 实例ID
-     */
-    String processInstanceId;
+    private String taskId;
 
     /**
      * 附件URL
      */
-    String url;
+    private String url;
 
     /**
      * 用户ID
      */
-    String userId;
+    private String userId;
 
     /**
      * 时间
      */
-    Date time;
+    private Date time;
 
 
 }

@@ -1,6 +1,5 @@
 package cn.meshed.cloud.workflow.flow.executor;
 
-import cn.meshed.cloud.workflow.domain.flow.Designer;
 import cn.meshed.cloud.workflow.domain.flow.ability.DesignerAbility;
 import cn.meshed.cloud.workflow.flow.command.DesignerCmd;
 import cn.meshed.cloud.workflow.flow.executor.command.DesignerCmdExe;

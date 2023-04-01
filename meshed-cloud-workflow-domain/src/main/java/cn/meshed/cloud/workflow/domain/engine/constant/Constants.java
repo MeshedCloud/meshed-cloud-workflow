@@ -1,5 +1,8 @@
 package cn.meshed.cloud.workflow.domain.engine.constant;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * <h1></h1>
  *
@@ -17,4 +20,12 @@ public interface Constants {
      * svg 后缀
      */
     String SVG_FILE_SUFFIX = ".svg";
+
+    /**
+     * 活动节点类型列表
+     */
+    Set<String> ACTIVITY_TYPES = new HashSet<String>(){{
+        add("userTask");
+        add("endEvent");
+    }};
 }

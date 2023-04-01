@@ -6,8 +6,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.time.LocalDateTime;
-import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -53,7 +51,7 @@ public class FormDO extends BaseEntity {
      * 表单json数据
      */
     @TableField("`schema`")
-    private String schema;
+    private byte[] schema;
 
     /**
      * 表单版本

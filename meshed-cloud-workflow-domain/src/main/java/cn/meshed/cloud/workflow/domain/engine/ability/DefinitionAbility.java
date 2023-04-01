@@ -21,4 +21,12 @@ public interface DefinitionAbility extends ISearchList<DefinitionPageQry, PageRe
      * @return {@link Response}
      */
     Response invertedState(String definitionId);
+
+    /**
+     * 拷贝定义
+     *
+     * @param definitionId 定义ID
+     * @return {@link Response}
+     */
+    Response copy(String definitionId);
 }

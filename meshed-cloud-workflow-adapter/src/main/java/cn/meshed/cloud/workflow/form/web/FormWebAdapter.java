@@ -1,7 +1,6 @@
 package cn.meshed.cloud.workflow.form.web;
 
 import cn.meshed.cloud.workflow.domain.form.ability.FormAbility;
-import cn.meshed.cloud.workflow.flow.data.DraftDTO;
 import cn.meshed.cloud.workflow.form.FormAdapter;
 import cn.meshed.cloud.workflow.form.command.FormCmd;
 import cn.meshed.cloud.workflow.form.command.FormSchemaCmd;
@@ -9,6 +8,7 @@ import cn.meshed.cloud.workflow.form.data.FormDTO;
 import cn.meshed.cloud.workflow.form.data.FormOptionDTO;
 import cn.meshed.cloud.workflow.form.query.FormPageQry;
 import cn.meshed.cloud.workflow.form.query.FormSchemaQry;
+import com.alibaba.cola.dto.MultiResponse;
 import com.alibaba.cola.dto.PageResponse;
 import com.alibaba.cola.dto.Response;
 import com.alibaba.cola.dto.SingleResponse;
@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.List;
 
 /**
  * <h1>表单适配器</h1>
@@ -44,10 +43,10 @@ public class FormWebAdapter implements FormAdapter {
     /**
      * 表单分页列表
      *
-     * @return {@link PageResponse<FormOptionDTO>}
+     * @return {@link MultiResponse<FormOptionDTO>}
      */
     @Override
-    public SingleResponse<List<FormOptionDTO>> select() {
+    public MultiResponse<FormOptionDTO> select() {
         return formAbility.select();
     }
 
@@ -92,7 +91,7 @@ public class FormWebAdapter implements FormAdapter {
      * @return {@link Response}
      */
     @Override
-    public Response getSchemaById(String formId) {
+    public SingleResponse<String> getSchemaById(String formId) {
         FormSchemaQry formSchemaQry = new FormSchemaQry();
         formSchemaQry.setId(formId);
         return formAbility.getSchema(formSchemaQry);
@@ -105,7 +104,7 @@ public class FormWebAdapter implements FormAdapter {
      * @return {@link Response}
      */
     @Override
-    public Response getSchemaByKey(String key) {
+    public SingleResponse<String> getSchemaByKey(String key) {
         FormSchemaQry formSchemaQry = new FormSchemaQry();
         formSchemaQry.setKey(key);
         return formAbility.getSchema(formSchemaQry);
@@ -131,6 +130,28 @@ public class FormWebAdapter implements FormAdapter {
     @Override
     public Response discard(String formId) {
         return formAbility.discard(formId);
+    }
+
+    /**
+     * 恢复表单
+     *
+     * @param formId 表单ID
+     * @return {@link Response}
+     */
+    @Override
+    public Response resume(String formId) {
+        return formAbility.resume(formId);
+    }
+
+    /**
+     * 删除表单
+     *
+     * @param formId 表单ID
+     * @return {@link Response}
+     */
+    @Override
+    public Response delete(String formId) {
+        return formAbility.delete(formId);
     }
 
     /**

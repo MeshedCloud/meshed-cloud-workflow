@@ -1,19 +1,18 @@
 package cn.meshed.cloud.workflow.domain.form.ability;
 
+import cn.meshed.cloud.core.IDelete;
 import cn.meshed.cloud.core.ISave;
 import cn.meshed.cloud.core.ISearchList;
-import cn.meshed.cloud.workflow.domain.form.Form;
 import cn.meshed.cloud.workflow.form.command.FormCmd;
 import cn.meshed.cloud.workflow.form.command.FormSchemaCmd;
 import cn.meshed.cloud.workflow.form.data.FormDTO;
 import cn.meshed.cloud.workflow.form.data.FormOptionDTO;
 import cn.meshed.cloud.workflow.form.query.FormPageQry;
 import cn.meshed.cloud.workflow.form.query.FormSchemaQry;
+import com.alibaba.cola.dto.MultiResponse;
 import com.alibaba.cola.dto.PageResponse;
 import com.alibaba.cola.dto.Response;
 import com.alibaba.cola.dto.SingleResponse;
-
-import java.util.List;
 
 /**
  * <h1>表单能力</h1>
@@ -21,7 +20,8 @@ import java.util.List;
  * @author Vincent Vic
  * @version 1.0
  */
-public interface FormAbility extends ISearchList<FormPageQry, PageResponse<FormDTO>>, ISave<FormCmd, Response> {
+public interface FormAbility extends ISearchList<FormPageQry, PageResponse<FormDTO>>, ISave<FormCmd, Response>,
+        IDelete<String, Response> {
 
     /**
      * 保存表单数据
@@ -46,6 +46,14 @@ public interface FormAbility extends ISearchList<FormPageQry, PageResponse<FormD
      * @return {@link Response}
      */
     Response discard(String formId);
+
+    /**
+     * 恢复表单
+     *
+     * @param formId 表单ID
+     * @return {@link Response}
+     */
+    Response resume(String formId);
 
     /**
      * 拷贝副本
@@ -74,7 +82,7 @@ public interface FormAbility extends ISearchList<FormPageQry, PageResponse<FormD
     /**
      * 获取表单选项信息
      *
-     * @return {@link SingleResponse<List<FormOptionDTO>>}
+     * @return {@link MultiResponse<FormOptionDTO>}
      */
-    SingleResponse<List<FormOptionDTO>> select();
+    MultiResponse<FormOptionDTO> select();
 }

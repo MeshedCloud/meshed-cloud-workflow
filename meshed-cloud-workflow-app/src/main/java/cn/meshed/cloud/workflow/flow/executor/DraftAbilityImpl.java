@@ -4,7 +4,10 @@ import cn.meshed.cloud.workflow.domain.flow.ability.DraftAbility;
 import cn.meshed.cloud.workflow.flow.command.DraftCmd;
 import cn.meshed.cloud.workflow.flow.data.DraftDTO;
 import cn.meshed.cloud.workflow.flow.executor.command.DraftCmdExe;
+import cn.meshed.cloud.workflow.flow.executor.command.DraftDelExe;
+import cn.meshed.cloud.workflow.flow.executor.command.DraftPublishCmdExe;
 import cn.meshed.cloud.workflow.flow.executor.query.DraftPageQryExe;
+import cn.meshed.cloud.workflow.flow.executor.query.DraftQryExe;
 import cn.meshed.cloud.workflow.flow.query.DraftPageQry;
 import com.alibaba.cola.dto.PageResponse;
 import com.alibaba.cola.dto.Response;
@@ -23,7 +26,10 @@ import org.springframework.stereotype.Component;
 public class DraftAbilityImpl implements DraftAbility {
 
     private final DraftCmdExe draftCmdExe;
+    private final DraftDelExe draftDelExe;
+    private final DraftPublishCmdExe draftPublishCmdExe;
     private final DraftPageQryExe draftPageQryExe;
+    private final DraftQryExe draftQryExe;
 
     /**
      * <h1>保存草稿</h1>
@@ -32,7 +38,7 @@ public class DraftAbilityImpl implements DraftAbility {
      * @return {@link Response}
      */
     @Override
-    public Response save(DraftCmd draftCmd) {
+    public SingleResponse<String> save(DraftCmd draftCmd) {
         return draftCmdExe.execute(draftCmd);
     }
 
@@ -55,7 +61,7 @@ public class DraftAbilityImpl implements DraftAbility {
      */
     @Override
     public Response publish(String draftId) {
-        return null;
+        return draftPublishCmdExe.execute(draftId);
     }
 
     /**
@@ -66,6 +72,17 @@ public class DraftAbilityImpl implements DraftAbility {
      */
     @Override
     public SingleResponse<DraftDTO> query(String draftId) {
-        return null;
+        return draftQryExe.execute(draftId);
+    }
+
+    /**
+     * <h1>删除对象</h1>
+     *
+     * @param draftId 草稿ID
+     * @return {@link Response}
+     */
+    @Override
+    public Response delete(String draftId) {
+        return draftDelExe.execute(draftId);
     }
 }

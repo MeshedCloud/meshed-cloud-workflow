@@ -1,5 +1,6 @@
 package cn.meshed.cloud.workflow.domain.flow.gateway;
 
+import cn.meshed.cloud.core.IDelete;
 import cn.meshed.cloud.core.IQuery;
 import cn.meshed.cloud.core.ISave;
 import cn.meshed.cloud.core.ISearchList;
@@ -13,8 +14,8 @@ import com.alibaba.cola.dto.PageResponse;
  * @author Vincent Vic
  * @version 1.0
  */
-public interface DraftGateway extends ISearchList<DraftPageQry, PageResponse<Draft>>, ISave<Draft, Boolean>,
-        IQuery<String, Draft> {
+public interface DraftGateway extends ISearchList<DraftPageQry, PageResponse<Draft>>, ISave<Draft, String>,
+        IQuery<String, Draft>, IDelete<String,Boolean> {
 
 
 }

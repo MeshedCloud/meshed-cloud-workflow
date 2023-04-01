@@ -1,5 +1,6 @@
 package cn.meshed.cloud.workflow.domain.engine.gateway;
 
+import cn.meshed.cloud.core.IQuery;
 import cn.meshed.cloud.core.ISearchList;
 import cn.meshed.cloud.workflow.domain.engine.AddAttachment;
 import cn.meshed.cloud.workflow.domain.engine.AddComment;
@@ -7,7 +8,11 @@ import cn.meshed.cloud.workflow.domain.engine.Attachment;
 import cn.meshed.cloud.workflow.domain.engine.Comment;
 import cn.meshed.cloud.workflow.domain.engine.CompleteTask;
 import cn.meshed.cloud.workflow.domain.engine.Task;
+import cn.meshed.cloud.workflow.domain.engine.TaskActivity;
+import cn.meshed.cloud.workflow.domain.engine.constant.CommentType;
+import cn.meshed.cloud.workflow.engine.query.TaskActivityQry;
 import cn.meshed.cloud.workflow.engine.query.TaskPageQry;
+import cn.meshed.cloud.workflow.engine.query.TaskQry;
 import com.alibaba.cola.dto.PageResponse;
 
 import java.util.List;
@@ -18,7 +23,16 @@ import java.util.List;
  * @author Vincent Vic
  * @version 1.0
  */
-public interface TaskGateway extends ISearchList<TaskPageQry, PageResponse<Task>> {
+public interface TaskGateway extends ISearchList<TaskPageQry, PageResponse<Task>> ,
+        IQuery<TaskQry, Task> {
+
+    /**
+     * 任务活动节点列表
+     *
+     * @param taskActivityQry 查询参数
+     * @return {@link List<TaskActivity>}
+     */
+    List<TaskActivity> activityList(TaskActivityQry taskActivityQry);
 
     /**
      * 完成任务
@@ -37,18 +51,11 @@ public interface TaskGateway extends ISearchList<TaskPageQry, PageResponse<Task>
     /**
      * 根据任务ID查询评论
      *
-     * @param taskId 任务ID
+     * @param instanceId 实例ID
+     * @param type   评论类型
      * @return {@link List<Comment>}
      */
-    List<Comment> getTaskComments(String taskId);
-
-    /**
-     * 根据任务ID查询评论
-     *
-     * @param processInstanceId 实例ID
-     * @return {@link List<Comment>}
-     */
-    List<Comment> getInstanceComments(String processInstanceId);
+    List<Comment> getComments(String instanceId, CommentType type);
 
     /**
      * 删除评论
@@ -65,20 +72,12 @@ public interface TaskGateway extends ISearchList<TaskPageQry, PageResponse<Task>
     void addAttachment(AddAttachment addAttachment);
 
     /**
-     * 获取任务附件
-     *
-     * @param taskId 任务ID
-     * @return {@link List<Attachment>}
-     */
-    List<Attachment> getTaskAttachments(String taskId);
-
-    /**
      * 获取实例附件
      *
      * @param processInstanceId 实例ID
      * @return {@link List<Attachment>}
      */
-    List<Attachment> getInstanceAttachments(String processInstanceId);
+    List<Attachment> getAttachments(String processInstanceId);
 
     /**
      * 删除附件

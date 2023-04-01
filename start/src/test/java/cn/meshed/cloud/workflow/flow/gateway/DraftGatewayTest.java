@@ -12,11 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
-
 /**
  * <h1></h1>
  *
@@ -37,8 +32,6 @@ public class DraftGatewayTest {
             draft.setId("draft_uuid"+i);
             draft.setCategory("Test");
             draft.setDescription("Test");
-            draft.setFormId("f"+i);
-            draft.setFormType(FormTypeEnum.FORM);
             draft.setKey("key"+i);
             draft.setName("name"+i);
             draftGateway.save(draft);

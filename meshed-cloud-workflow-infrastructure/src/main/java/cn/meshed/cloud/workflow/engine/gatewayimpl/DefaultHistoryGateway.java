@@ -2,13 +2,17 @@ package cn.meshed.cloud.workflow.engine.gatewayimpl;
 
 import cn.meshed.cloud.utils.CopyUtils;
 import cn.meshed.cloud.workflow.domain.engine.History;
+import cn.meshed.cloud.workflow.domain.engine.Task;
 import cn.meshed.cloud.workflow.domain.engine.gateway.HistoryGateway;
-import cn.meshed.cloud.workflow.engine.query.HistoryPageQry;
+import cn.meshed.cloud.workflow.engine.convert.TaskConvert;
+import cn.meshed.cloud.workflow.engine.query.TaskPageQry;
 import com.alibaba.cola.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.engine.HistoryService;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.task.api.history.HistoricTaskInstanceQuery;
 import org.springframework.scheduling.annotation.Async;
@@ -18,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * <h1>历史网关默认实现</h1>
@@ -39,17 +44,22 @@ public class DefaultHistoryGateway implements HistoryGateway {
      * @return {@link PageResponse<History>}
      */
     @Override
-    public PageResponse<History> searchList(HistoryPageQry pageQry) {
+    public PageResponse<Task> searchList(TaskPageQry pageQry) {
         HistoricTaskInstanceQuery query = getProcessHistoryQuery(pageQry);
         //查询总数
         long total = query.count();
         if (total == 0) {
-            return PageResponse.of(Collections.emptyList(), Math.toIntExact(total), pageQry.getPageIndex(), pageQry.getPageSize());
+            return PageResponse.of(Collections.emptyList(), Math.toIntExact(total),
+                    pageQry.getPageIndex(), pageQry.getPageSize());
         }
         //查询列表
         List<HistoricTaskInstance> historicTaskInstances = query.listPage(pageQry.getOffset(), pageQry.getPageSize());
-        List<History> histories = CopyUtils.copyListProperties(historicTaskInstances, History::new);
-        return PageResponse.of(histories, Math.toIntExact(total), pageQry.getPageIndex(), pageQry.getPageSize());
+        if (CollectionUtils.isEmpty(historicTaskInstances)){
+            return PageResponse.of(Collections.emptyList(), Math.toIntExact(total),
+                    pageQry.getPageIndex(), pageQry.getPageSize());
+        }
+        List<Task> tasks = historicTaskInstances.stream().map(TaskConvert::toTask).collect(Collectors.toList());
+        return PageResponse.of(tasks, Math.toIntExact(total), pageQry.getPageIndex(), pageQry.getPageSize());
     }
 
     /**
@@ -58,7 +68,7 @@ public class DefaultHistoryGateway implements HistoryGateway {
      * @param pageQry 分页参数
      * @return {@link HistoricTaskInstanceQuery}
      */
-    private HistoricTaskInstanceQuery getProcessHistoryQuery(HistoryPageQry pageQry) {
+    private HistoricTaskInstanceQuery getProcessHistoryQuery(TaskPageQry pageQry) {
         HistoricTaskInstanceQuery historicTaskInstanceQuery = historyService.createHistoricTaskInstanceQuery();
         //名字模糊匹配
         if (StringUtils.isNotBlank(pageQry.getName())) {
@@ -73,9 +83,9 @@ public class DefaultHistoryGateway implements HistoryGateway {
             historicTaskInstanceQuery.taskAssignee(pageQry.getAssignee());
         }
         //任务人匹配
-        if (Objects.nonNull(pageQry.getIsFinished()) && pageQry.getIsFinished()) {
+        if (Objects.nonNull(pageQry.getFinished()) && pageQry.getFinished()) {
             historicTaskInstanceQuery.processFinished();
-        } else if (Objects.nonNull(pageQry.getIsFinished()) && !pageQry.getIsFinished()) {
+        } else if (Objects.nonNull(pageQry.getFinished()) && !pageQry.getFinished()) {
             historicTaskInstanceQuery.processUnfinished();
         }
         /*

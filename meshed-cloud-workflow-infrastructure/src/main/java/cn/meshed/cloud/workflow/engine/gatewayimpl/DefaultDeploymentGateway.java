@@ -41,8 +41,11 @@ public class DefaultDeploymentGateway implements DeploymentGateway {
         if (createDeployment.hasBpmnModel()){
             builder.addBpmnModel(createDeployment.getBpmnName(), createDeployment.getBpmnModel());
         } else {
-            AssertUtils.isTrue(createDeployment.getXmlIn() != null, "部署内容称不能为空");
+            AssertUtils.isTrue(createDeployment.getBpmnName() != null, "部署内容称不能为空");
             builder.addInputStream(createDeployment.getBpmnName(), createDeployment.getXmlIn());
+        }
+        if (StringUtils.isNotBlank(createDeployment.getTenantId())) {
+            builder.tenantId(createDeployment.getTenantId());
         }
 
         //svg不为空
@@ -58,7 +61,6 @@ public class DefaultDeploymentGateway implements DeploymentGateway {
         Deployment deploy = builder.deploy();
         ProcessDefinition definition = repositoryService.createProcessDefinitionQuery().deploymentId(deploy.getId()).singleResult();
         if (StringUtils.isNotBlank(createDeployment.getCategory())) {
-
             repositoryService.setProcessDefinitionCategory(definition.getId(), createDeployment.getCategory());
         }
 

@@ -2,12 +2,9 @@ package cn.meshed.cloud.workflow.flow.executor.query;
 
 import cn.meshed.cloud.cqrs.QueryExecute;
 import cn.meshed.cloud.utils.AssertUtils;
-import cn.meshed.cloud.utils.CopyUtils;
 import cn.meshed.cloud.utils.ResultUtils;
-import cn.meshed.cloud.workflow.domain.flow.Designer;
 import cn.meshed.cloud.workflow.domain.flow.gateway.DesignerGateway;
 import com.alibaba.cola.dto.SingleResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +49,7 @@ public class DesignerQryExe implements QueryExecute<String, SingleResponse<Strin
             designer = cacheDesignerGateway.getDesigner(flowId);
         } else {
             //非草稿持久化中获取
-            designer = cacheDesignerGateway.getDesigner(flowId);
+            designer = designerGateway.getDesigner(flowId);
         }
         return ResultUtils.of(designer);
     }
