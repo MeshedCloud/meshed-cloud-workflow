@@ -10,8 +10,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.BpmnAutoLayout;
 import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.bpmn.model.CustomProperty;
 import org.flowable.bpmn.model.EndEvent;
 import org.flowable.bpmn.model.ExclusiveGateway;
+import org.flowable.bpmn.model.ExtensionAttribute;
+import org.flowable.bpmn.model.ExtensionElement;
 import org.flowable.bpmn.model.FlowElement;
 import org.flowable.bpmn.model.ParallelGateway;
 import org.flowable.bpmn.model.Process;
@@ -26,6 +29,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,6 +48,10 @@ public class CreateDeployment implements Serializable {
 
     private String name;
     private String key;
+    /**
+     * 归属系统
+     */
+    private String tenantId;
     @Setter(AccessLevel.NONE)
     private String category;
     private InputStream xmlIn;
@@ -136,8 +144,11 @@ public class CreateDeployment implements Serializable {
      */
     public BpmnModel getBpmnModel() {
         AssertUtils.isTrue(StringUtils.isNotBlank(this.json), "模型注册必须存在数据库");
+        //解析节点
         List<FlowElement> elements = parsingElements();
-        AssertUtils.isTrue(CollectionUtils.isNotEmpty(elements),"设计不存在任何节点无效发布");
+        AssertUtils.isTrue(CollectionUtils.isNotEmpty(elements), "设计不存在任何节点无效发布");
+        //检测合法性
+        validityVerification(elements);
         BpmnModel bpmnModel = new BpmnModel();
         bpmnModel.addProcess(getProcess(elements));
         //自动布局
@@ -149,11 +160,18 @@ public class CreateDeployment implements Serializable {
     }
 
     private Process getProcess(List<FlowElement> elements) {
-        Process process=new Process();
+        Process process = new Process();
         process.setId(this.key);
         process.setName(this.name);
         elements.forEach(process::addFlowElement);
         return process;
+    }
+
+    private void validityVerification(List<FlowElement> elements) {
+        long startCount = elements.stream().filter(flowElement -> flowElement instanceof StartEvent).count();
+        AssertUtils.isTrue(startCount == 1, "开始节点数仅支持一个");
+        long endCount = elements.stream().filter(flowElement -> flowElement instanceof StartEvent).count();
+        AssertUtils.isTrue(endCount == 1, "结束节点数仅支持一个");
     }
 
     private List<FlowElement> parsingElements() {
@@ -200,16 +218,18 @@ public class CreateDeployment implements Serializable {
 
     private SequenceFlow getSequenceFlow(Map<String, Object> edge) {
         SequenceFlow sequenceFlow = new SequenceFlow();
-        sequenceFlow.setId(IdUtils.simpleUUID());
-        sequenceFlow.setSourceRef(getMapInnerValue(edge,"source","cell"));
-        sequenceFlow.setTargetRef(getMapInnerValue(edge,"target","cell"));
-        sequenceFlow.setConditionExpression(getNodeString(edge,"conditionExpression"));
+        sequenceFlow.setId("sid-"+IdUtils.randomUUID());
+        sequenceFlow.setSourceRef(getMapInnerValue(edge, "source", "cell"));
+        sequenceFlow.setTargetRef(getMapInnerValue(edge, "target", "cell"));
+        sequenceFlow.setConditionExpression(getNodeString(edge, "conditionExpression"));
+        AssertUtils.isTrue(StringUtils.isNotBlank(sequenceFlow.getSourceRef()),"流程连线缺少数据");
+        AssertUtils.isTrue(StringUtils.isNotBlank(sequenceFlow.getTargetRef()),"流程连线缺少数据");
         return sequenceFlow;
     }
 
-    private String getMapInnerValue(Map<String, Object> edge,String key,String innerKey) {
+    private String getMapInnerValue(Map<String, Object> edge, String key, String innerKey) {
         Map<String, Object> source = (Map<String, Object>) edge.get(key);
-        if (source != null){
+        if (source != null) {
             return (String) source.get(innerKey);
         }
         return null;
@@ -227,6 +247,11 @@ public class CreateDeployment implements Serializable {
         userTask.setId(getNodeString(node, "id"));
         userTask.setName(getNodeString(node, "label"));
         userTask.setAssignee("${INITIATOR}");
+        //todo 后期调整为监听完成任务
+        Boolean autoComplete = (Boolean) node.get("autoComplete");
+        if (autoComplete){
+            userTask.setSkipExpression("${true}");
+        }
         return userTask;
     }
 
@@ -235,12 +260,27 @@ public class CreateDeployment implements Serializable {
         userTask.setId(getNodeString(node, "id"));
         userTask.setName(getNodeString(node, "label"));
         String userType = getNodeString(node, "userType");
+        String dataType = getNodeString(node, "dataType");
+
         if ("assignee".equals(userType)) {
-            userTask.setAssignee(getNodeString(node, "assignee"));
+            if ("dynamic".equals(dataType)){
+                userTask.setAssignee(getNodeString(node, "dynamicExpression"));
+            } else {
+                userTask.setAssignee(getNodeString(node, "assignee"));
+            }
         } else if ("candidateUsers".equals(userType)) {
-            userTask.setCandidateUsers(getNodeList(node, "candidateUsers"));
+            if ("dynamic".equals(dataType)){
+                userTask.setCandidateUsers(Collections.singletonList(getNodeString(node, "dynamicExpression")));
+            } else {
+                userTask.setCandidateUsers(getNodeList(node, "candidateUsers"));
+            }
+
         } else if ("candidateGroups".equals(userType)) {
-            userTask.setCandidateGroups(getNodeList(node, "candidateGroups"));
+            if ("dynamic".equals(dataType)){
+                userTask.setCandidateGroups(Collections.singletonList(getNodeString(node, "dynamicExpression")));
+            } else {
+                userTask.setCandidateGroups(getNodeList(node, "candidateGroups"));
+            }
         }
         userTask.setSkipExpression(getNodeString(node, "skipExpression"));
         return userTask;
@@ -269,6 +309,7 @@ public class CreateDeployment implements Serializable {
 
     private StartEvent getStartEvent(Map<String, Object> node) {
         StartEvent startEvent = new StartEvent();
+        startEvent.setFormKey(getNodeString(node, "formKey"));
         startEvent.setId(getNodeString(node, "id"));
         startEvent.setInitiator("INITIATOR");
         startEvent.setName(getNodeString(node, "label"));

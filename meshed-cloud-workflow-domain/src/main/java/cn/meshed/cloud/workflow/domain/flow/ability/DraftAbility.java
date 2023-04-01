@@ -1,5 +1,6 @@
 package cn.meshed.cloud.workflow.domain.flow.ability;
 
+import cn.meshed.cloud.core.IDelete;
 import cn.meshed.cloud.core.ISave;
 import cn.meshed.cloud.core.ISearchList;
 import cn.meshed.cloud.workflow.flow.command.DraftCmd;
@@ -15,7 +16,8 @@ import com.alibaba.cola.dto.SingleResponse;
  * @author Vincent Vic
  * @version 1.0
  */
-public interface DraftAbility extends ISearchList<DraftPageQry, PageResponse<DraftDTO>>, ISave<DraftCmd, Response> {
+public interface DraftAbility extends ISearchList<DraftPageQry, PageResponse<DraftDTO>>,
+        ISave<DraftCmd, SingleResponse<String>> , IDelete<String,Response> {
 
     /**
      * 发布流程

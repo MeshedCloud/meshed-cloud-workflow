@@ -8,6 +8,7 @@ import cn.meshed.cloud.workflow.domain.flow.Draft;
 import cn.meshed.cloud.workflow.domain.flow.gateway.DraftGateway;
 import cn.meshed.cloud.workflow.flow.command.DraftCmd;
 import com.alibaba.cola.dto.Response;
+import com.alibaba.cola.dto.SingleResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +25,7 @@ import static cn.meshed.cloud.workflow.domain.flow.constant.Constants.DRAFT_PREF
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class DraftCmdExe implements CommandExecute<DraftCmd, Response> {
+public class DraftCmdExe implements CommandExecute<DraftCmd, SingleResponse<String>> {
 
     private final DraftGateway draftGateway;
 
@@ -35,12 +36,10 @@ public class DraftCmdExe implements CommandExecute<DraftCmd, Response> {
      * @return {@link Response}
      */
     @Override
-    public Response execute(DraftCmd draftCmd) {
+    public SingleResponse<String> execute(DraftCmd draftCmd) {
         Draft draft = CopyUtils.copy(draftCmd, Draft.class);
-        if (StringUtils.isBlank(draft.getId())){
-            draft.setId(DRAFT_PREFIX+ IdUtils.simpleUUID());
-        }
-        draftGateway.save(draft);
-        return ResultUtils.ok();
+        draft.setVersion(1);
+        String uuid = draftGateway.save(draft);
+        return ResultUtils.of(uuid);
     }
 }

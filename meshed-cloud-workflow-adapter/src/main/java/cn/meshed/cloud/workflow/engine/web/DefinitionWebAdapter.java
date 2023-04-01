@@ -45,4 +45,15 @@ public class DefinitionWebAdapter implements DefinitionAdapter {
     public Response invertedState(String definitionId) {
         return definitionAbility.invertedState(definitionId);
     }
+
+    /**
+     * 流程定义拷贝
+     *
+     * @param definitionId 流程定义ID
+     * @return {@link Response}
+     */
+    @Override
+    public Response copy(String definitionId) {
+        return definitionAbility.copy(definitionId);
+    }
 }

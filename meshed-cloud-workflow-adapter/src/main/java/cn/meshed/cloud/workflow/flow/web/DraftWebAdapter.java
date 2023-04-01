@@ -53,7 +53,7 @@ public class DraftWebAdapter implements DraftAdapter {
      * @return {@link Response}
      */
     @Override
-    public Response save(@Valid DraftCmd draftCmd) {
+    public SingleResponse<String> save(@Valid DraftCmd draftCmd) {
         return draftAbility.save(draftCmd);
     }
 
@@ -66,5 +66,16 @@ public class DraftWebAdapter implements DraftAdapter {
     @Override
     public Response publish(String draftId) {
         return draftAbility.publish(draftId);
+    }
+
+    /**
+     * 发布流程
+     *
+     * @param draftId 草稿ID
+     * @return {@link Response}
+     */
+    @Override
+    public Response delete(String draftId) {
+        return draftAbility.delete(draftId);
     }
 }

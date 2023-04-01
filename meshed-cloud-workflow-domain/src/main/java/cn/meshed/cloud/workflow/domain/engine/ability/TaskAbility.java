@@ -1,18 +1,21 @@
 package cn.meshed.cloud.workflow.domain.engine.ability;
 
+import cn.meshed.cloud.core.IQuery;
 import cn.meshed.cloud.core.ISearchList;
 import cn.meshed.cloud.workflow.engine.command.AttachmentCmd;
 import cn.meshed.cloud.workflow.engine.command.CommentCmd;
 import cn.meshed.cloud.workflow.engine.command.CompleteTaskCmd;
 import cn.meshed.cloud.workflow.engine.data.AttachmentDTO;
 import cn.meshed.cloud.workflow.engine.data.CommentDTO;
+import cn.meshed.cloud.workflow.engine.data.TaskActivityDTO;
 import cn.meshed.cloud.workflow.engine.data.TaskDTO;
+import cn.meshed.cloud.workflow.engine.query.TaskActivityQry;
 import cn.meshed.cloud.workflow.engine.query.TaskPageQry;
+import cn.meshed.cloud.workflow.engine.query.TaskQry;
+import com.alibaba.cola.dto.MultiResponse;
 import com.alibaba.cola.dto.PageResponse;
 import com.alibaba.cola.dto.Response;
 import com.alibaba.cola.dto.SingleResponse;
-
-import java.util.List;
 
 /**
  * <h1>任务适配器</h1>
@@ -20,8 +23,16 @@ import java.util.List;
  * @author Vincent Vic
  * @version 1.0
  */
-public interface TaskAbility extends ISearchList<TaskPageQry, PageResponse<TaskDTO>> {
+public interface TaskAbility extends ISearchList<TaskPageQry, PageResponse<TaskDTO>>,
+        IQuery<TaskQry, SingleResponse<TaskDTO>> {
 
+    /**
+     * 任务活动节点列表
+     *
+     * @param taskActivityQry 任务活动查询
+     * @return {@link MultiResponse<TaskActivityDTO>}
+     */
+    MultiResponse<TaskActivityDTO> activityList(TaskActivityQry taskActivityQry);
     /**
      * 完成任务
      *
@@ -41,18 +52,10 @@ public interface TaskAbility extends ISearchList<TaskPageQry, PageResponse<TaskD
     /**
      * 根据任务ID查询评论
      *
-     * @param taskId 任务ID
-     * @return {@link SingleResponse<List <CommentDTO>>}
-     */
-    SingleResponse<List<CommentDTO>> getTaskComments(String taskId);
-
-    /**
-     * 根据任务ID查询评论
-     *
      * @param processInstanceId 实例ID
-     * @return {@link SingleResponse<List<CommentDTO>>}
+     * @return {@link MultiResponse<CommentDTO>}
      */
-    SingleResponse<List<CommentDTO>> getInstanceComments(String processInstanceId);
+    MultiResponse<CommentDTO> getComments(String processInstanceId);
 
     /**
      * 删除评论
@@ -71,20 +74,12 @@ public interface TaskAbility extends ISearchList<TaskPageQry, PageResponse<TaskD
     Response addAttachment(AttachmentCmd attachmentCmd);
 
     /**
-     * 获取任务附件
-     *
-     * @param taskId 任务ID
-     * @return {@link SingleResponse<List<AttachmentDTO>>}
-     */
-    SingleResponse<List<AttachmentDTO>> getTaskAttachments(String taskId);
-
-    /**
      * 获取实例附件
      *
      * @param processInstanceId 实例ID
-     * @return {@link SingleResponse<List<AttachmentDTO>>}
+     * @return {@link MultiResponse<AttachmentDTO>}
      */
-    SingleResponse<List<AttachmentDTO>> getInstanceAttachments(String processInstanceId);
+    MultiResponse<AttachmentDTO> getAttachments(String processInstanceId);
 
     /**
      * 删除附件

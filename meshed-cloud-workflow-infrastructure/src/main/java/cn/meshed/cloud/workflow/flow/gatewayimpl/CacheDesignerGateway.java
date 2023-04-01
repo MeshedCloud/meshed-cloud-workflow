@@ -1,5 +1,6 @@
 package cn.meshed.cloud.workflow.flow.gatewayimpl;
 
+import cn.meshed.cloud.utils.GzipUtils;
 import cn.meshed.cloud.workflow.domain.flow.Designer;
 import cn.meshed.cloud.workflow.domain.flow.gateway.DesignerGateway;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class CacheDesignerGateway implements DesignerGateway {
     @Override
     public String getDesigner(String flowId) {
         String redisKey = getKey(flowId);
-        return stringRedisTemplate.opsForValue().get(redisKey);
+        return GzipUtils.uncompress(stringRedisTemplate.opsForValue().get(redisKey));
     }
 
     /**
@@ -41,7 +42,19 @@ public class CacheDesignerGateway implements DesignerGateway {
     @Override
     public Boolean save(Designer designer) {
         String redisKey = getKey(designer.getFlowId());
-        stringRedisTemplate.opsForValue().set(redisKey, designer.getGraph());
+        stringRedisTemplate.opsForValue().set(redisKey, GzipUtils.compress(designer.getGraph()));
+        return true;
+    }
+
+    /**
+     * <h1>删除对象</h1>
+     *
+     * @param flowId Boolean
+     * @return {@link Boolean}
+     */
+    @Override
+    public Boolean delete(String flowId) {
+        stringRedisTemplate.delete(getKey(flowId));
         return true;
     }
 

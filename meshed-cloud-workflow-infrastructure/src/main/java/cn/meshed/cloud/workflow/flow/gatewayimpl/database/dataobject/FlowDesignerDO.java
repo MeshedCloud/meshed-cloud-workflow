@@ -3,9 +3,10 @@ package cn.meshed.cloud.workflow.flow.gatewayimpl.database.dataobject;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -25,7 +26,7 @@ public class FlowDesignerDO implements Serializable {
     /**
      * 流程设计数据
      */
-    @TableId(type = IdType.ASSIGN_UUID)
+    @TableId(type = IdType.INPUT)
     private String id;
 
     /**

@@ -2,6 +2,7 @@ package cn.meshed.cloud.workflow.engine.executor;
 
 import cn.meshed.cloud.workflow.domain.engine.ability.DefinitionAbility;
 import cn.meshed.cloud.workflow.engine.data.DefinitionDTO;
+import cn.meshed.cloud.workflow.engine.executor.command.DefinitionCopyCmd;
 import cn.meshed.cloud.workflow.engine.executor.command.DefinitionInvertedStateCmdExe;
 import cn.meshed.cloud.workflow.engine.executor.query.DefinitionPageQryExe;
 import cn.meshed.cloud.workflow.engine.query.DefinitionPageQry;
@@ -24,6 +25,7 @@ public class DefinitionAbilityImpl implements DefinitionAbility {
 
     private final DefinitionInvertedStateCmdExe definitionInvertedStateCmdExe;
     private final DefinitionPageQryExe definitionPageQryExe;
+    private final DefinitionCopyCmd definitionCopyCmd;
 
     /**
      * 反转状态
@@ -34,6 +36,17 @@ public class DefinitionAbilityImpl implements DefinitionAbility {
     @Override
     public Response invertedState(String definitionId) {
         return definitionInvertedStateCmdExe.execute(definitionId);
+    }
+
+    /**
+     * 拷贝定义
+     *
+     * @param definitionId 定义ID
+     * @return {@link Response}
+     */
+    @Override
+    public Response copy(String definitionId) {
+        return definitionCopyCmd.execute(definitionId);
     }
 
     /**

@@ -1,5 +1,7 @@
 package cn.meshed.cloud.workflow.domain.engine;
 
+import cn.meshed.cloud.context.SecurityContext;
+import cn.meshed.cloud.workflow.domain.engine.constant.CommentType;
 import lombok.Data;
 
 import java.util.Map;
@@ -24,7 +26,7 @@ public class CompleteTask {
     /**
      * 实例ID
      */
-    private String processInstanceId;
+    private String instanceId;
     /**
      * 完成任务携带参数
      */
@@ -33,6 +35,10 @@ public class CompleteTask {
      * 完成携带信息
      */
     private String message;
+
+    public CompleteTask() {
+        this.userId = String.valueOf(SecurityContext.getOperatorUserId());
+    }
 
     /**
      * 获取添加评论数据包
@@ -43,8 +49,8 @@ public class CompleteTask {
         AddComment addComment = new AddComment();
         addComment.setTaskId(this.taskId);
         addComment.setMessage(this.message);
-        addComment.setType("comment");
-        addComment.setProcessInstanceId(this.processInstanceId);
+        addComment.setType(CommentType.APPROVE);
+        addComment.setInstanceId(this.instanceId);
         addComment.setUserId(this.userId);
         return addComment;
     }

@@ -1,6 +1,10 @@
 package cn.meshed.cloud.workflow.form.executor.command;
 
 import cn.meshed.cloud.cqrs.CommandExecute;
+import cn.meshed.cloud.utils.CopyUtils;
+import cn.meshed.cloud.utils.ResultUtils;
+import cn.meshed.cloud.workflow.domain.form.Form;
+import cn.meshed.cloud.workflow.domain.form.gateway.FormGateway;
 import cn.meshed.cloud.workflow.form.command.FormCmd;
 import com.alibaba.cola.dto.Response;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +21,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class FormCmdExe implements CommandExecute<FormCmd, Response> {
+
+    private final FormGateway formGateway;
+
     /**
      * <h1>执行器</h1>
      *
@@ -25,6 +32,7 @@ public class FormCmdExe implements CommandExecute<FormCmd, Response> {
      */
     @Override
     public Response execute(FormCmd formCmd) {
-        return null;
+        Form form = CopyUtils.copy(formCmd, Form.class);
+        return ResultUtils.of(formGateway.save(form));
     }
 }

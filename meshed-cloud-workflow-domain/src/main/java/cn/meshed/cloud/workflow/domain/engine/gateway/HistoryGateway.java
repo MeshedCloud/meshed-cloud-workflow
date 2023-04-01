@@ -1,8 +1,8 @@
 package cn.meshed.cloud.workflow.domain.engine.gateway;
 
 import cn.meshed.cloud.core.ISearchList;
-import cn.meshed.cloud.workflow.domain.engine.History;
-import cn.meshed.cloud.workflow.engine.query.HistoryPageQry;
+import cn.meshed.cloud.workflow.domain.engine.Task;
+import cn.meshed.cloud.workflow.engine.query.TaskPageQry;
 import com.alibaba.cola.dto.PageResponse;
 
 import java.util.Set;
@@ -13,7 +13,7 @@ import java.util.Set;
  * @author Vincent Vic
  * @version 1.0
  */
-public interface HistoryGateway extends ISearchList<HistoryPageQry, PageResponse<History>> {
+public interface HistoryGateway extends ISearchList<TaskPageQry, PageResponse<Task>> {
 
     /**
      * 批量清理历史实例

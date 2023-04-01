@@ -1,5 +1,6 @@
 package cn.meshed.cloud.workflow.domain.engine;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,55 +16,78 @@ import java.util.Map;
 @Data
 public class Task implements Serializable {
 
+    /**
+     * 任务编码
+     */
     private String id;
 
+    /**
+     * 任务名称
+     */
     private String name;
 
+    /**
+     * 流程名称
+     */
+    private String definitionName;
+
+    /**
+     * 描述
+     */
     private String description;
 
-    private int priority;
-
+    /**
+     * 所属人
+     */
     private String owner;
 
+    /**
+     * 审批人
+     */
     private String assignee;
 
-    private String processInstanceId;
+    /**
+     * 发起人
+     */
+    private String initiator;
 
-    private String executionId;
+    /**
+     * 流程实例编码
+     */
+    private String instanceId;
 
-    private String taskDefinitionId;
+    /**
+     * 执行编码
+     */
+    private String definitionId;
 
-    private String processDefinitionId;
-
-    private String scopeId;
-
-    private String subScopeId;
-
-    private String scopeType;
-
-    private String scopeDefinitionId;
-
-    private String propagatedStageInstanceId;
-
+    /**
+     * 发起时间
+     */
     private Date createTime;
 
-    private String taskDefinitionKey;
-
+    /**
+     * 过期时间
+     */
     private Date dueDate;
 
-    private String category;
-
-    private String parentTaskId;
-
-    private String tenantId;
-
+    /**
+     * 表单key
+     */
     private String formKey;
 
-    private Map<String, Object> taskLocalVariables;
+    /**
+     * 任务局部参数
+     */
+    private Map<String, Object> localVariables;
 
-    private Map<String, Object> processVariables;
+    /**
+     * 过程参数
+     */
+    private Map<String, Object> variables;
 
-//    private List<? extends IdentityLinkInfo> IdentityLinks;
-
+    /**
+     * 运行时间
+     */
     private Date claimTime;
 }

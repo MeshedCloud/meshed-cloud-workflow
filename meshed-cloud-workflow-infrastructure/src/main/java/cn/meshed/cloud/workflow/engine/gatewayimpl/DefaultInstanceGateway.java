@@ -1,24 +1,32 @@
 package cn.meshed.cloud.workflow.engine.gatewayimpl;
 
+import cn.meshed.cloud.utils.AssertUtils;
 import cn.meshed.cloud.utils.CopyUtils;
 import cn.meshed.cloud.workflow.domain.engine.InitiateInstance;
 import cn.meshed.cloud.workflow.domain.engine.Instance;
+import cn.meshed.cloud.workflow.domain.engine.Task;
 import cn.meshed.cloud.workflow.domain.engine.gateway.InstanceGateway;
+import cn.meshed.cloud.workflow.engine.convert.TaskConvert;
 import cn.meshed.cloud.workflow.engine.enums.ActiveStatusEnum;
-import cn.meshed.cloud.workflow.engine.query.InstancePageQry;
+import cn.meshed.cloud.workflow.engine.query.TaskPageQry;
 import com.alibaba.cola.dto.PageResponse;
+import com.alibaba.cola.exception.SysException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.engine.runtime.ProcessInstanceBuilder;
 import org.flowable.engine.runtime.ProcessInstanceQuery;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <h1>流程实例网关默认实现</h1>
@@ -41,18 +49,30 @@ public class DefaultInstanceGateway implements InstanceGateway {
      */
     @Override
     public String initiate(InitiateInstance initiateInstance) {
+        String key = initiateInstance.getKey();
+        AssertUtils.isTrue(StringUtils.isNotBlank(key),"流程标识不能为空");
+        AssertUtils.isTrue(StringUtils.isNotBlank(initiateInstance.getTenantId()),"发起系统不能为空");
         //设置流程发起人id 流程引擎会对应到变量：INITIATOR
         Authentication.setAuthenticatedUserId(initiateInstance.getInitiator());
-        ProcessInstance processInstance = null;
-        Map<String, Object> param = initiateInstance.getParam();
-        String key = initiateInstance.getKey();
-        if (param != null && param.size() > 0) {
-            //启动流程
-            processInstance = runtimeService.startProcessInstanceByKey(key, param);
+        ProcessInstanceBuilder builder = runtimeService.createProcessInstanceBuilder()
+                .tenantId(initiateInstance.getTenantId());
+        if (StringUtils.isNotBlank(key)){
+            builder.processDefinitionKey(key);
+        } else if (StringUtils.isNotBlank(initiateInstance.getDefinitionId())){
+            builder.processDefinitionId(initiateInstance.getDefinitionId());
         } else {
-            //启动流程
-            processInstance = runtimeService.startProcessInstanceByKey(key);
+            throw new SysException("流程ID和Key都不存在(必须传递一个)");
         }
+
+        Map<String, Object> param = initiateInstance.getParam();
+        if (param == null) {
+            param = new HashMap<>();
+        }
+        param.put("_FLOWABLE_SKIP_EXPRESSION_ENABLED",true);
+        builder.variables(param);
+
+        ProcessInstance processInstance = builder.start();
+
         /**
          * 这个方法最终使用一个ThreadLocal类型的变量进行存储，
          * 也就是与当前的线程绑定，所以流程实例启动完毕之后，
@@ -107,17 +127,22 @@ public class DefaultInstanceGateway implements InstanceGateway {
      * @return {@link PageResponse<Instance>}
      */
     @Override
-    public PageResponse<Instance> searchList(InstancePageQry pageQry) {
+    public PageResponse<Task> searchList(TaskPageQry pageQry) {
         ProcessInstanceQuery query = getProcessInstanceQuery(pageQry);
         //查询总数
         long total = query.count();
         if (total == 0) {
-            return PageResponse.of(Collections.emptyList(), Math.toIntExact(total), pageQry.getPageIndex(), pageQry.getPageSize());
+            return PageResponse.of(Collections.emptyList(), Math.toIntExact(total),
+                    pageQry.getPageIndex(), pageQry.getPageSize());
         }
         //查询列表
         List<ProcessInstance> processInstances = query.listPage(pageQry.getOffset(), pageQry.getPageSize());
-        List<Instance> instances = CopyUtils.copyListProperties(processInstances, Instance::new);
-        return PageResponse.of(instances, Math.toIntExact(total), pageQry.getPageIndex(), pageQry.getPageSize());
+        if (CollectionUtils.isEmpty(processInstances)){
+            return PageResponse.of(Collections.emptyList(), Math.toIntExact(total),
+                    pageQry.getPageIndex(), pageQry.getPageSize());
+        }
+        List<Task> tasks = processInstances.stream().map(TaskConvert::toTask).collect(Collectors.toList());
+        return PageResponse.of(tasks, Math.toIntExact(total), pageQry.getPageIndex(), pageQry.getPageSize());
     }
 
     /**
@@ -126,7 +151,7 @@ public class DefaultInstanceGateway implements InstanceGateway {
      * @param pageQry
      * @return
      */
-    private ProcessInstanceQuery getProcessInstanceQuery(InstancePageQry pageQry) {
+    private ProcessInstanceQuery getProcessInstanceQuery(TaskPageQry pageQry) {
         ProcessInstanceQuery processInstanceQuery = runtimeService.createProcessInstanceQuery();
         //名字模糊匹配
         if (StringUtils.isNotBlank(pageQry.getName())) {
@@ -143,5 +168,17 @@ public class DefaultInstanceGateway implements InstanceGateway {
             processInstanceQuery.deploymentId(pageQry.getDeployId());
         }
         return processInstanceQuery;
+    }
+
+    /**
+     * 查询
+     *
+     * @param instanceId 实例参数
+     * @return {@link Instance}
+     */
+    @Override
+    public Instance query(String instanceId) {
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(instanceId).singleResult();
+        return CopyUtils.copy(processInstance, Instance.class);
     }
 }

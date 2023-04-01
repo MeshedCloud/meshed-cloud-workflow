@@ -1,6 +1,8 @@
 package cn.meshed.cloud.workflow.form.executor.query;
 
 import cn.meshed.cloud.cqrs.QueryExecute;
+import cn.meshed.cloud.utils.ResultUtils;
+import cn.meshed.cloud.workflow.domain.form.gateway.FormGateway;
 import cn.meshed.cloud.workflow.form.data.FormDTO;
 import cn.meshed.cloud.workflow.form.query.FormPageQry;
 import com.alibaba.cola.dto.PageResponse;
@@ -18,6 +20,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class FormPageQryExe implements QueryExecute<FormPageQry, PageResponse<FormDTO>> {
+
+    private final FormGateway formGateway;
+
     /**
      * <h1>查询执行器</h1>
      *
@@ -26,6 +31,6 @@ public class FormPageQryExe implements QueryExecute<FormPageQry, PageResponse<Fo
      */
     @Override
     public PageResponse<FormDTO> execute(FormPageQry pageQry) {
-        return null;
+        return ResultUtils.copyPage(formGateway.searchList(pageQry),FormDTO::new);
     }
 }

@@ -13,37 +13,58 @@ import java.io.Serializable;
 @Data
 public class Definition implements Serializable {
 
+    /**
+     * 编码
+     */
     private String id;
 
+    /**
+     * 分类
+     */
     private String category;
 
+    /**
+     * 名称
+     */
     private String name;
 
+    /**
+     * 标识
+     */
     private String key;
 
+    /**
+     * 详情
+     */
     private String description;
 
+    /**
+     * 版本
+     */
     private Integer version;
 
-    private String resourceName;
-
+    /**
+     * 部署编码
+     */
     private String deploymentId;
 
-    private String diagramResourceName;
-
+    /**
+     * 是否存在挂载表单
+     */
     private Boolean hasStartFormKey;
 
-    private Boolean hasGraphicalNotation;
+    /**
+     * 主表单标识 （开始节点挂载）
+     */
+    private String formKey;
 
-    private Boolean isSuspended;
+    /**
+     * 是否挂起
+     */
+    private Boolean suspended;
 
+    /**
+     * 租户
+     */
     private String tenantId;
-
-    private String derivedFrom;
-
-    private String derivedFromRoot;
-
-    private Integer derivedVersion;
-
-    private String engineVersion;
 }
