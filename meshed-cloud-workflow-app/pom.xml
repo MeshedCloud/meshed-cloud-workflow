@@ -31,5 +31,9 @@
             <artifactId>spring-tx</artifactId>
             <version>${spring-context.version}</version>
         </dependency>
+        <dependency>
+            <groupId>cn.meshed.cloud.iam</groupId>
+            <artifactId>meshed-cloud-iam-client</artifactId>
+        </dependency>
     </dependencies>
 </project>

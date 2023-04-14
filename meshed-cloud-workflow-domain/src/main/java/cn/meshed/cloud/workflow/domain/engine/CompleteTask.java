@@ -1,10 +1,12 @@
 package cn.meshed.cloud.workflow.domain.engine;
 
 import cn.meshed.cloud.context.SecurityContext;
+import cn.meshed.cloud.dto.Operator;
 import cn.meshed.cloud.workflow.domain.engine.constant.CommentType;
 import lombok.Data;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <h1>完成任务</h1>
@@ -19,6 +21,10 @@ public class CompleteTask {
      * 用户ID
      */
     private String userId;
+    /**
+     * 用户组
+     */
+    private Set<String> groupIds;
     /**
      * 编码ID
      */
@@ -37,7 +43,9 @@ public class CompleteTask {
     private String message;
 
     public CompleteTask() {
-        this.userId = String.valueOf(SecurityContext.getOperatorUserId());
+        Operator operator = SecurityContext.getOperator();
+        this.userId = operator.getId();
+        this.groupIds = operator.getRoles();
     }
 
     /**

@@ -219,7 +219,7 @@ public class DeploymentTest {
         System.out.println("===================");
         List<ProcessDefinition> list = repositoryService.createProcessDefinitionQuery().list();
         for (ProcessDefinition processDefinition : list) {
-            System.out.println("processDefinition ==> "+processDefinition.getId()+" , "+processDefinition.getName()+"  key:"+ processDefinition.getKey());
+            System.out.println("processDefinition ==> "+processDefinition.getId()+" , "+processDefinition.getName()+"  key:"+ processDefinition.getKey() +"  version:" + processDefinition.getVersion() +"  dey:" + processDefinition.getDeploymentId());
         }
     }
 
@@ -335,7 +335,7 @@ public class DeploymentTest {
     @SneakyThrows
     @Test
     public void readXmlTest(){
-        InputStream inputStream = readXml("dc0f6f39-d055-11ed-9577-004238a4ec73");
+        InputStream inputStream = readXml("62e5530c-d9d9-11ed-85bd-004238a4ec73");
         String result = new BufferedReader(new InputStreamReader(inputStream))
                 .lines().collect(Collectors.joining(System.lineSeparator()));
         System.out.println(result);

@@ -67,6 +67,11 @@ public class Task implements Serializable {
     private Date createTime;
 
     /**
+     * 结束时间
+     */
+    private Date endTime;
+
+    /**
      * 过期时间
      */
     private Date dueDate;
@@ -89,5 +94,5 @@ public class Task implements Serializable {
     /**
      * 运行时间
      */
-    private Date claimTime;
+    private Long claimTime;
 }

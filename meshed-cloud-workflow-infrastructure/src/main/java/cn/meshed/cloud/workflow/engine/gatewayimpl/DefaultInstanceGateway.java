@@ -11,6 +11,7 @@ import cn.meshed.cloud.workflow.engine.enums.ActiveStatusEnum;
 import cn.meshed.cloud.workflow.engine.query.TaskPageQry;
 import com.alibaba.cola.dto.PageResponse;
 import com.alibaba.cola.exception.SysException;
+import com.alibaba.fastjson.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -68,9 +70,11 @@ public class DefaultInstanceGateway implements InstanceGateway {
         if (param == null) {
             param = new HashMap<>();
         }
+        //允许跳过
         param.put("_FLOWABLE_SKIP_EXPRESSION_ENABLED",true);
+        param.put("initiate", JSONObject.toJSONString(param));
         builder.variables(param);
-
+        //流程启动
         ProcessInstance processInstance = builder.start();
 
         /**

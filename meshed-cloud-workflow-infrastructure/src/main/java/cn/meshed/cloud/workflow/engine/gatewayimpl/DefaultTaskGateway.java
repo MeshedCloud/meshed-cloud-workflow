@@ -1,5 +1,8 @@
 package cn.meshed.cloud.workflow.engine.gatewayimpl;
 
+import cn.meshed.cloud.context.SecurityContext;
+import cn.meshed.cloud.dto.Operator;
+import cn.meshed.cloud.utils.AssertUtils;
 import cn.meshed.cloud.utils.CopyUtils;
 import cn.meshed.cloud.workflow.domain.engine.AddAttachment;
 import cn.meshed.cloud.workflow.domain.engine.AddComment;
@@ -58,6 +61,7 @@ public class DefaultTaskGateway implements TaskGateway {
     private final HistoryService historyService;
     private final RuntimeService runtimeService;
     private final FormGateway formGateway;
+    private final DefinitionGateway definitionGateway;
 
     /**
      * 任务活动节点列表
@@ -108,6 +112,18 @@ public class DefaultTaskGateway implements TaskGateway {
     public void completeTask(CompleteTask completeTask) {
         Authentication.setAuthenticatedUserId(completeTask.getUserId());
         addComment(completeTask.getComment());
+        org.flowable.task.api.Task task = taskService.createTaskQuery()
+                .taskId(completeTask.getTaskId())
+                .or()
+                .taskInvolvedUser(completeTask.getUserId())
+                .taskInvolvedGroups(completeTask.getGroupIds())
+                .endOr().singleResult();
+        AssertUtils.isTrue(task != null, "非审批人无法进行操作");
+        //如果没有审批人说明需要领取任务
+        assert task != null;
+        if (task.getAssignee() == null){
+            taskService.claim(completeTask.getTaskId(), completeTask.getUserId());
+        }
         if (completeTask.getParam() != null && completeTask.getParam().size() > 0) {
             taskService.complete(completeTask.getTaskId(), completeTask.getParam());
         } else {
@@ -223,7 +239,9 @@ public class DefaultTaskGateway implements TaskGateway {
             return PageResponse.of(Collections.emptyList(), Math.toIntExact(total), pageQry.getPageIndex(),
                     pageQry.getPageSize());
         }
-        List<Task> tasks = taskList.stream().map(TaskConvert::toTask).collect(Collectors.toList());
+        List<Task> tasks = taskList.stream().map(TaskConvert::toTask).peek(task -> {
+            task.setDefinitionName(definitionGateway.getDefinitionName(task.getDefinitionId()));
+        }).collect(Collectors.toList());
         return PageResponse.of(tasks, Math.toIntExact(total), pageQry.getPageIndex(), pageQry.getPageSize());
     }
 
@@ -247,8 +265,18 @@ public class DefaultTaskGateway implements TaskGateway {
         }
         //任务人匹配
         if (StringUtils.isNotBlank(pageQry.getAssignee())) {
-            taskQuery.taskAssignee(pageQry.getAssignee());
+            taskQuery.or();
+            //用户和角色都存在
+            if (CollectionUtils.isNotEmpty(pageQry.getCandidateGroup())) {
+                taskQuery.taskInvolvedGroups(pageQry.getCandidateGroup());
+            }
+            taskQuery.taskInvolvedUser(pageQry.getAssignee()).endOr();
+        } else if (CollectionUtils.isNotEmpty(pageQry.getCandidateGroup())) {
+            //仅角色存在
+            taskQuery.taskCandidateGroupIn(pageQry.getCandidateGroup())
+                    .or();
         }
+
         /*
          * 时间区间处理
          */
@@ -262,14 +290,17 @@ public class DefaultTaskGateway implements TaskGateway {
     }
 
     /**
-     * 查询
+     * 查询 (仅允许查询自己的可操作的用户信息)
      *
      * @param taskQry 任务参数
      * @return {@link TaskDTO}
      */
     @Override
     public Task query(TaskQry taskQry) {
-        org.flowable.task.api.Task apiTask = taskService.createTaskQuery().taskId(taskQry.getTaskId()).singleResult();
+        org.flowable.task.api.Task apiTask = taskService.createTaskQuery()
+                .processInstanceId(taskQry.getInstanceId())
+                .singleResult();
+        AssertUtils.isTrue(apiTask != null, "任务信息不存在");
         Task task = TaskConvert.toTask(apiTask);
         Instance instance = instanceGateway.query(task.getInstanceId());
         task.setDefinitionName(instance.getProcessDefinitionName());
