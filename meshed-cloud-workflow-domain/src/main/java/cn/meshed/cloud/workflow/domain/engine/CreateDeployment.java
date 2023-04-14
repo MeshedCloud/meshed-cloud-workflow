@@ -10,15 +10,16 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.BpmnAutoLayout;
 import org.flowable.bpmn.model.BpmnModel;
-import org.flowable.bpmn.model.CustomProperty;
 import org.flowable.bpmn.model.EndEvent;
 import org.flowable.bpmn.model.ExclusiveGateway;
-import org.flowable.bpmn.model.ExtensionAttribute;
 import org.flowable.bpmn.model.ExtensionElement;
+import org.flowable.bpmn.model.FieldExtension;
 import org.flowable.bpmn.model.FlowElement;
+import org.flowable.bpmn.model.FlowableListener;
 import org.flowable.bpmn.model.ParallelGateway;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.SequenceFlow;
+import org.flowable.bpmn.model.ServiceTask;
 import org.flowable.bpmn.model.StartEvent;
 import org.flowable.bpmn.model.UserTask;
 
@@ -35,7 +36,60 @@ import java.util.Map;
 import java.util.Objects;
 
 import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.BPMN_FILE_SUFFIX;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.CELL;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.CONTENT_TYPE;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.CONTENT_TYPE_APPLICATION_FORM;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.END_EVENT;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.EXCLUSIVE_GATEWAY;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.EXPRESSION;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.HEADER_FORMAT;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.INITIATOR;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.INITIATOR_EL;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.INITIATOR_EVENT;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.MAIL_EVENT;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_ASSIGNEE;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_AUTO_COMPLETE;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_CANDIDATE_GROUPS;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_CANDIDATE_USERS;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_CLASS;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_CONDITION_EXPRESSION;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_DATA_TYPE;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_DYNAMIC;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_DYNAMIC_EXPRESSION;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_EDGES;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_ID;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_LABEL;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_MAIL_BCC;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_MAIL_CC;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_MAIL_HTML_VAR;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_MAIL_SUBJECT;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_MAIL_TO;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_RENDER_KEY;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_REQUEST_BODY;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_REQUEST_CONTENT_TYPE;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_REQUEST_FAIL_CODES;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_REQUEST_HANDLE_CODES;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_REQUEST_HEADERS;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_REQUEST_METHOD;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_REQUEST_TIMEOUT;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_REQUEST_URL;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_SCS_BINDING;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_SCS_BODY;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_SCS_NAMESPACE;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_SKIP_EXPRESSION;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_SOURCE;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_TARGET;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.NODE_USER_TYPE;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.PARALLEL_GATEWAY;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.SCS_BINDER_DELEGATE;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.SCS_BINDER_EVENT;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.SID_FORMAT;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.START_EVENT;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.STRING;
 import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.SVG_FILE_SUFFIX;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.TRUE_EL;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.USER_TASK;
+import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.WEB_HOOK_EVENT;
 
 /**
  * <h1></h1>
@@ -44,7 +98,7 @@ import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.SVG_FILE
  * @version 1.0
  */
 @Data
-public class CreateDeployment implements Serializable {
+public class CreateDeployment extends AbstractFlowElementHandle {
 
     private String name;
     private String key;
@@ -144,185 +198,8 @@ public class CreateDeployment implements Serializable {
      */
     public BpmnModel getBpmnModel() {
         AssertUtils.isTrue(StringUtils.isNotBlank(this.json), "模型注册必须存在数据库");
-        //解析节点
-        List<FlowElement> elements = parsingElements();
-        AssertUtils.isTrue(CollectionUtils.isNotEmpty(elements), "设计不存在任何节点无效发布");
-        //检测合法性
-        validityVerification(elements);
-        BpmnModel bpmnModel = new BpmnModel();
-        bpmnModel.addProcess(getProcess(elements));
-        //自动布局
-        BpmnAutoLayout bpmnAutoLayout = new BpmnAutoLayout(bpmnModel);
-        bpmnAutoLayout.setTaskHeight(120);
-        bpmnAutoLayout.setTaskWidth(120);
-        bpmnAutoLayout.execute();
-        return bpmnModel;
-    }
-
-    private Process getProcess(List<FlowElement> elements) {
-        Process process = new Process();
-        process.setId(this.key);
-        process.setName(this.name);
-        elements.forEach(process::addFlowElement);
-        return process;
-    }
-
-    private void validityVerification(List<FlowElement> elements) {
-        long startCount = elements.stream().filter(flowElement -> flowElement instanceof StartEvent).count();
-        AssertUtils.isTrue(startCount == 1, "开始节点数仅支持一个");
-        long endCount = elements.stream().filter(flowElement -> flowElement instanceof StartEvent).count();
-        AssertUtils.isTrue(endCount == 1, "结束节点数仅支持一个");
-    }
-
-    private List<FlowElement> parsingElements() {
-        Map<String, Object> map = JSONUtil.toBean(this.json, Map.class);
-        //处理节点
-        List<Map<String, Object>> nodes = (List<Map<String, Object>>) map.get("nodes");
-        List<FlowElement> elements = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(nodes)) {
-            nodes.forEach(node -> {
-                String nodeType = getNodeString(node, "renderKey");
-                switch (Objects.requireNonNull(nodeType)) {
-                    case "startEvent":
-                        elements.add(getStartEvent(node));
-                        break;
-                    case "endEvent":
-                        elements.add(getEndEvent(node));
-                        break;
-                    case "userTask":
-                        elements.add(getUserTask(node));
-                        break;
-                    case "initiatorEvent":
-                        elements.add(getInitiatorEvent(node));
-                        break;
-                    case "exclusiveGateway":
-                        elements.add(getExclusiveGateway(node));
-                        break;
-                    case "parallelGateway":
-                        elements.add(getParallelGateway(node));
-                        break;
-                    default:
-                }
-            });
-
-        }
-        //处理边
-        List<Map<String, Object>> edges = (List<Map<String, Object>>) map.get("edges");
-        if (CollectionUtils.isNotEmpty(edges)) {
-            edges.forEach(edge -> {
-                elements.add(getSequenceFlow(edge));
-            });
-        }
-        return elements;
-    }
-
-    private SequenceFlow getSequenceFlow(Map<String, Object> edge) {
-        SequenceFlow sequenceFlow = new SequenceFlow();
-        sequenceFlow.setId("sid-"+IdUtils.randomUUID());
-        sequenceFlow.setSourceRef(getMapInnerValue(edge, "source", "cell"));
-        sequenceFlow.setTargetRef(getMapInnerValue(edge, "target", "cell"));
-        sequenceFlow.setConditionExpression(getNodeString(edge, "conditionExpression"));
-        AssertUtils.isTrue(StringUtils.isNotBlank(sequenceFlow.getSourceRef()),"流程连线缺少数据");
-        AssertUtils.isTrue(StringUtils.isNotBlank(sequenceFlow.getTargetRef()),"流程连线缺少数据");
-        return sequenceFlow;
-    }
-
-    private String getMapInnerValue(Map<String, Object> edge, String key, String innerKey) {
-        Map<String, Object> source = (Map<String, Object>) edge.get(key);
-        if (source != null) {
-            return (String) source.get(innerKey);
-        }
-        return null;
-    }
-
-    /**
-     * 得到发起人事件节点模型
-     * 本质是用户节点
-     *
-     * @param node 节点原始数据
-     * @return
-     */
-    private UserTask getInitiatorEvent(Map<String, Object> node) {
-        UserTask userTask = new UserTask();
-        userTask.setId(getNodeString(node, "id"));
-        userTask.setName(getNodeString(node, "label"));
-        userTask.setAssignee("${INITIATOR}");
-        //todo 后期调整为监听完成任务
-        Boolean autoComplete = (Boolean) node.get("autoComplete");
-        if (autoComplete){
-            userTask.setSkipExpression("${true}");
-        }
-        return userTask;
-    }
-
-    private UserTask getUserTask(Map<String, Object> node) {
-        UserTask userTask = new UserTask();
-        userTask.setId(getNodeString(node, "id"));
-        userTask.setName(getNodeString(node, "label"));
-        String userType = getNodeString(node, "userType");
-        String dataType = getNodeString(node, "dataType");
-
-        if ("assignee".equals(userType)) {
-            if ("dynamic".equals(dataType)){
-                userTask.setAssignee(getNodeString(node, "dynamicExpression"));
-            } else {
-                userTask.setAssignee(getNodeString(node, "assignee"));
-            }
-        } else if ("candidateUsers".equals(userType)) {
-            if ("dynamic".equals(dataType)){
-                userTask.setCandidateUsers(Collections.singletonList(getNodeString(node, "dynamicExpression")));
-            } else {
-                userTask.setCandidateUsers(getNodeList(node, "candidateUsers"));
-            }
-
-        } else if ("candidateGroups".equals(userType)) {
-            if ("dynamic".equals(dataType)){
-                userTask.setCandidateGroups(Collections.singletonList(getNodeString(node, "dynamicExpression")));
-            } else {
-                userTask.setCandidateGroups(getNodeList(node, "candidateGroups"));
-            }
-        }
-        userTask.setSkipExpression(getNodeString(node, "skipExpression"));
-        return userTask;
-    }
-
-    private EndEvent getEndEvent(Map<String, Object> node) {
-        EndEvent endEvent = new EndEvent();
-        endEvent.setId(getNodeString(node, "id"));
-        endEvent.setName(getNodeString(node, "label"));
-        return endEvent;
-    }
-
-    private ExclusiveGateway getExclusiveGateway(Map<String, Object> node) {
-        ExclusiveGateway exclusiveGateway = new ExclusiveGateway();
-        exclusiveGateway.setId(getNodeString(node, "id"));
-        exclusiveGateway.setName(getNodeString(node, "label"));
-        return exclusiveGateway;
-    }
-
-    private ParallelGateway getParallelGateway(Map<String, Object> node) {
-        ParallelGateway parallelGateway = new ParallelGateway();
-        parallelGateway.setId(getNodeString(node, "id"));
-        parallelGateway.setName(getNodeString(node, "label"));
-        return parallelGateway;
-    }
-
-    private StartEvent getStartEvent(Map<String, Object> node) {
-        StartEvent startEvent = new StartEvent();
-        startEvent.setFormKey(getNodeString(node, "formKey"));
-        startEvent.setId(getNodeString(node, "id"));
-        startEvent.setInitiator("INITIATOR");
-        startEvent.setName(getNodeString(node, "label"));
-        return startEvent;
-    }
-
-    private String getNodeString(Map<String, Object> node, String key) {
-        String str = (String) node.get(key);
-        return StringUtils.isNotBlank(str) ? str : null;
-    }
-
-    private List<String> getNodeList(Map<String, Object> node, String key) {
-        return (List<String>) node.get(key);
+        JsonToBpmnModel jsonToBpmnModel = new JsonToBpmnModel(this.name, this.key, this.json);
+        return jsonToBpmnModel.getBpmnModel();
     }
 
 }

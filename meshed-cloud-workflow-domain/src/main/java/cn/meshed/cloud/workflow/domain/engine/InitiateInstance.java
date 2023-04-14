@@ -37,6 +37,6 @@ public class InitiateInstance implements Serializable {
     private Map<String, Object> param;
 
     public InitiateInstance() {
-        this.initiator = String.valueOf(SecurityContext.getOperatorUserId());
+        this.initiator = SecurityContext.getUserIdString();
     }
 }

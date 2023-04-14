@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    nacos:
+      #服务发现
+      discovery:
+        # 注册IP复用dubbo vm参数
+        ip: ${DUBBO_IP_TO_REGISTRY:}

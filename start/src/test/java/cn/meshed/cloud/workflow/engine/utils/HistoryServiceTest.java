@@ -29,7 +29,9 @@ public class HistoryServiceTest {
      */
     @Test
     public void historicProcessInstanceQuery(){
-        List<HistoricProcessInstance> list = historyService.createHistoricProcessInstanceQuery().processInstanceId("b3fbd774-c2dd-11ec-bcbc-004238a4ec73").list();
+        HistoricProcessInstance historicProcessInstance1 = historyService.createHistoricProcessInstanceQuery().processInstanceId("18057cbf-d9ee-11ed-8472-004238a4ec73").singleResult();
+        System.out.println(historicProcessInstance1);
+        List<HistoricProcessInstance> list = historyService.createHistoricProcessInstanceQuery().involvedUser("1").list();
         for (HistoricProcessInstance historicProcessInstance : list) {
             System.out.println(historicProcessInstance.getProcessDefinitionName());
             System.out.println(JSON.toJSONString(historicProcessInstance));
@@ -43,8 +45,7 @@ public class HistoryServiceTest {
     public void createHistoricTaskInstanceQuery(){
         List<HistoricTaskInstance> list = historyService.createHistoricTaskInstanceQuery()
                 //按结束时间正向排序
-                .orderByHistoricTaskInstanceEndTime().asc()
-                .processInstanceId("b3fbd774-c2dd-11ec-bcbc-004238a4ec73").list();
+                .orderByHistoricTaskInstanceEndTime().asc().list();
         for (HistoricTaskInstance historicTaskInstance : list) {
             System.out.println("task "+historicTaskInstance.getName()+" == "+historicTaskInstance.getAssignee());
         }
