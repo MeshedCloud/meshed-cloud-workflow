@@ -3,9 +3,12 @@ package cn.meshed.cloud.workflow.domain.engine;
 import cn.hutool.json.JSONUtil;
 import cn.meshed.cloud.utils.AssertUtils;
 import cn.meshed.cloud.utils.IdUtils;
+import com.alibaba.fastjson.JSONObject;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.BpmnAutoLayout;
@@ -97,6 +100,8 @@ import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.WEB_HOOK
  * @author Vincent Vic
  * @version 1.0
  */
+@EqualsAndHashCode(callSuper = false)
+@Slf4j
 @Data
 public class CreateDeployment extends AbstractFlowElementHandle {
 
@@ -198,6 +203,7 @@ public class CreateDeployment extends AbstractFlowElementHandle {
      */
     public BpmnModel getBpmnModel() {
         AssertUtils.isTrue(StringUtils.isNotBlank(this.json), "模型注册必须存在数据库");
+        log.info("设计图 => {}", this.json);
         JsonToBpmnModel jsonToBpmnModel = new JsonToBpmnModel(this.name, this.key, this.json);
         return jsonToBpmnModel.getBpmnModel();
     }

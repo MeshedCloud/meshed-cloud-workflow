@@ -1,10 +1,10 @@
 server:
-  port: ${PORT}
+  port: ${PORT:9989}
   servlet:
     context-path: /workflow
 spring:
   profiles:
-    active: ${ACTIVE}
+    active: ${ACTIVE:dev}
     include:
       mq
   application:
@@ -14,7 +14,7 @@ spring:
       #服务发现
       discovery:
         enabled: true
-        server-addr: ${NACOS_HOST}:${NACOS_PORT}
+        server-addr: ${NACOS_HOST:localhost}:${NACOS_PORT:8848}
         namespace: meshed-cloud
         metadata:
           management:
@@ -23,7 +23,7 @@ spring:
       config:
         enabled: true
         # 配置中心地址
-        server-addr: ${NACOS_HOST}:${NACOS_PORT}
+        server-addr: ${NACOS_HOST:localhost}:${NACOS_PORT:8848}
         # 配置文件格式
         file-extension: yaml
         # 服务命名空间
