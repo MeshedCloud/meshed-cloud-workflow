@@ -140,7 +140,6 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
         if (map == null || map.size() <= 0) {
             throw new SysException("解析数据不存在");
         }
-
         //处理节点
         List<Map<String, Object>> nodes = (List<Map<String, Object>>) map.get("nodes");
         List<FlowElement> elements = new ArrayList<>();
@@ -179,7 +178,6 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
                     default:
                 }
             });
-
         } else {
             throw new SysException("设计中不存在任何节点");
         }
@@ -293,7 +291,6 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
         fieldExtensions.add(fieldExtension);
     }
 
-
     private SequenceFlow getSequenceFlow(Map<String, Object> edge) {
         SequenceFlow sequenceFlow = new SequenceFlow();
         sequenceFlow.setId(String.format(SID_FORMAT, IdUtils.randomUUID()));
@@ -393,6 +390,5 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
         startEvent.setName(getNodeString(node, NODE_LABEL));
         return startEvent;
     }
-
 
 }
