@@ -3,9 +3,11 @@ package cn.meshed.cloud.workflow.domain.engine;
 import cn.hutool.json.JSONUtil;
 import cn.meshed.cloud.utils.AssertUtils;
 import cn.meshed.cloud.utils.IdUtils;
-import lombok.AccessLevel;
+import com.alibaba.cola.exception.SysException;
+import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
-import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.BpmnAutoLayout;
@@ -21,7 +23,6 @@ import org.flowable.bpmn.model.ServiceTask;
 import org.flowable.bpmn.model.StartEvent;
 import org.flowable.bpmn.model.UserTask;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -86,6 +87,8 @@ import static cn.meshed.cloud.workflow.domain.engine.constant.Constants.WEB_HOOK
  * @author Vincent Vic
  * @version 1.0
  */
+@EqualsAndHashCode(callSuper = false)
+@Slf4j
 @Data
 public class JsonToBpmnModel extends AbstractFlowElementHandle {
 
@@ -113,11 +116,6 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
         validityVerification(elements);
         BpmnModel bpmnModel = new BpmnModel();
         bpmnModel.addProcess(getProcess(elements));
-        //自动布局
-        BpmnAutoLayout bpmnAutoLayout = new BpmnAutoLayout(bpmnModel);
-        bpmnAutoLayout.setTaskHeight(120);
-        bpmnAutoLayout.setTaskWidth(120);
-        bpmnAutoLayout.execute();
         return bpmnModel;
     }
 
@@ -130,6 +128,7 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
     }
 
     private void validityVerification(List<FlowElement> elements) {
+        AssertUtils.isTrue(elements.size() >= 2, "最小节点至少有两个（开始-> 结束）");
         long startCount = elements.stream().filter(flowElement -> flowElement instanceof StartEvent).count();
         AssertUtils.isTrue(startCount == 1, "开始节点数仅支持一个");
         long endCount = elements.stream().filter(flowElement -> flowElement instanceof StartEvent).count();
@@ -138,6 +137,10 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
 
     private List<FlowElement> parsingElements() {
         Map<String, Object> map = JSONUtil.toBean(this.json, Map.class);
+        if (map == null || map.size() <= 0) {
+            throw new SysException("解析数据不存在");
+        }
+
         //处理节点
         List<Map<String, Object>> nodes = (List<Map<String, Object>>) map.get("nodes");
         List<FlowElement> elements = new ArrayList<>();
@@ -177,6 +180,8 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
                 }
             });
 
+        } else {
+            throw new SysException("设计中不存在任何节点");
         }
         //处理边
         List<Map<String, Object>> edges = (List<Map<String, Object>>) map.get(NODE_EDGES);
@@ -184,6 +189,8 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
             edges.forEach(edge -> {
                 elements.add(getSequenceFlow(edge));
             });
+        } else {
+            throw new SysException("设计中不存在任何连线");
         }
         return elements;
     }
@@ -197,8 +204,8 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
     }
 
     private void addScsExtension(Map<String, Object> node, ServiceTask serviceTask) {
-        addExtensionElement(serviceTask, NODE_SCS_NAMESPACE, NODE_SCS_BINDING, getNodeString(node,NODE_SCS_BINDING));
-        addExtensionElement(serviceTask, NODE_SCS_NAMESPACE, NODE_SCS_BODY, getNodeString(node,NODE_SCS_BODY));
+        addExtensionElement(serviceTask, NODE_SCS_NAMESPACE, NODE_SCS_BINDING, getNodeString(node, NODE_SCS_BINDING));
+        addExtensionElement(serviceTask, NODE_SCS_NAMESPACE, NODE_SCS_BODY, getNodeString(node, NODE_SCS_BODY));
     }
 
     /**
@@ -285,7 +292,6 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
         fieldExtension.setExpression(headers);
         fieldExtensions.add(fieldExtension);
     }
-
 
 
     private SequenceFlow getSequenceFlow(Map<String, Object> edge) {
@@ -387,7 +393,6 @@ public class JsonToBpmnModel extends AbstractFlowElementHandle {
         startEvent.setName(getNodeString(node, NODE_LABEL));
         return startEvent;
     }
-
 
 
 }
