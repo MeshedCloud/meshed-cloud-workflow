@@ -263,20 +263,21 @@ public class DefaultTaskGateway implements TaskGateway {
         if (StringUtils.isNotBlank(pageQry.getCategory())) {
             taskQuery.taskCategory(pageQry.getCategory());
         }
+        taskQuery.or();
         //任务人匹配
         if (StringUtils.isNotBlank(pageQry.getAssignee())) {
-            taskQuery.or();
+
             //用户和角色都存在
             if (CollectionUtils.isNotEmpty(pageQry.getCandidateGroup())) {
                 taskQuery.taskInvolvedGroups(pageQry.getCandidateGroup());
             }
-            taskQuery.taskInvolvedUser(pageQry.getAssignee()).endOr();
+            taskQuery.taskInvolvedUser(pageQry.getAssignee());
         } else if (CollectionUtils.isNotEmpty(pageQry.getCandidateGroup())) {
             //仅角色存在
-            taskQuery.taskCandidateGroupIn(pageQry.getCandidateGroup())
-                    .or();
+            taskQuery.taskInvolvedGroups(pageQry.getCandidateGroup());
         }
 
+        taskQuery.endOr();
         /*
          * 时间区间处理
          */

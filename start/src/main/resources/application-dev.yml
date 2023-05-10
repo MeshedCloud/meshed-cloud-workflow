@@ -7,9 +7,15 @@ flowable:
 
 
 service:
-  mock:
-    enable: true
-    user-id: 1
-    username: name
-    access: 6
-    roles: 6
+  security:
+    exclude-uris:
+      - /actuator
+      - /actuator/**
+      - /doc.html
+      - /v3/**
+    mock:
+      enable: true
+      user-id: 1
+      username: name
+      access: 6
+      roles: RD:ADMIN

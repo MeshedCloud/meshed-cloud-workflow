@@ -32,6 +32,6 @@ public class FormDiscardCmdExe implements CommandExecute<String, Response> {
     @Override
     public Response execute(String formId) {
         AssertUtils.isTrue(StringUtils.isNotBlank(formId),"表单ID不能为空");
-        return ResultUtils.of(formGateway.resume(formId));
+        return ResultUtils.of(formGateway.discard(formId));
     }
 }
