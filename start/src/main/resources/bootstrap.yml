@@ -14,6 +14,8 @@ spring:
       #服务发现
       discovery:
         enabled: true
+        # 注册IP复用dubbo vm参数
+        ip: ${DUBBO_IP_TO_REGISTRY:}
         server-addr: ${NACOS_HOST:localhost}:${NACOS_PORT:8848}
         namespace: meshed-cloud
         metadata:

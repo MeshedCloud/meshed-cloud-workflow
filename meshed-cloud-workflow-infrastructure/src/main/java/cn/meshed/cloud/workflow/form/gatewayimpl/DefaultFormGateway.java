@@ -72,6 +72,7 @@ public class DefaultFormGateway implements FormGateway {
         AssertUtils.isTrue(formDO.getStatus() != FormStatusEnum.EDIT, "表单编辑中可直接存在");
         formDO.setId(null);
         formDO.setVersion(formDO.getVersion() + 1);
+        formDO.setStatus(FormStatusEnum.EDIT);
         AssertUtils.isTrue(formMapper.insert(formDO) > 0, "拷贝失败");
         return formDO.getId();
     }
@@ -299,7 +300,8 @@ public class DefaultFormGateway implements FormGateway {
         FormDO formDO = getFormDO(formId);
         AssertUtils.isTrue(formDO != null, "表单不存在");
         assert formDO != null;
-        AssertUtils.isTrue(formDO.getStatus() != FormStatusEnum.DISCARD, "表单运行中不允许删除，请废弃后操作");
+        AssertUtils.isTrue(formDO.getStatus() == FormStatusEnum.DISCARD || formDO.getStatus() == FormStatusEnum.EDIT,
+                "表单运行中不允许删除，请废弃后操作");
         return formMapper.deleteById(formId) > 0;
     }
 }

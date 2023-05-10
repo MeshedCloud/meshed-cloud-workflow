@@ -86,6 +86,8 @@ public class RuntimeServiceTest {
     public void list(){
         List<ProcessInstance> list = runtimeService.createProcessInstanceQuery().list();
         for (ProcessInstance processInstance : list) {
+            runtimeService.suspendProcessInstanceById(processInstance.getProcessInstanceId());
+            runtimeService.deleteProcessInstance(processInstance.getProcessInstanceId(),"xxx");
             System.out.println(processInstance.getStartTime()+"|"+processInstance.getProcessInstanceId()+"|"+
                     processInstance.getStartUserId()+"|"+processInstance.getProcessDefinitionVersion()+"|"+processInstance.getProcessDefinitionName()+":"+
                     processInstance.isSuspended());
